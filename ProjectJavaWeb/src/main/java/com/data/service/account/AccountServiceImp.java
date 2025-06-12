@@ -2,15 +2,14 @@ package com.data.service.account;
 
 import com.data.entity.Account;
 import com.data.repository.account.AccountRep;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AccountServiceImp implements AccountService {
 
-    private AccountRep accountRep;
-    public AccountServiceImp(AccountRep accountRep) {
-        this.accountRep = accountRep;
-    }
+    private final AccountRep accountRep;
 
     @Override
     public boolean login(String email, String password) {

@@ -8,5 +8,6 @@
 
 <br/>
 <a href="login">Đăng nhập</a>
+<a href="sidebar">Trang chủ Admin</a>
 </body>
 </html>

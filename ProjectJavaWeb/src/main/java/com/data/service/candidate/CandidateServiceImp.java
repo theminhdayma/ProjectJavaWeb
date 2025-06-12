@@ -2,15 +2,14 @@ package com.data.service.candidate;
 
 import com.data.entity.Candidate;
 import com.data.repository.candidate.CandidateRep;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CandidateServiceImp implements CandidateService {
 
-    private CandidateRep candidateRep;
-    public CandidateServiceImp(CandidateRep candidateRep) {
-        this.candidateRep = candidateRep;
-    }
+    private final CandidateRep candidateRep;
 
     @Override
     public boolean register(Candidate candidate) {

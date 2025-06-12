@@ -1,18 +1,17 @@
 package com.data.repository.account;
 
 import com.data.entity.Account;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class AccountRepImp implements AccountRep {
 
-    SessionFactory sessionFactory;
-    public AccountRepImp(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    private final SessionFactory sessionFactory;
 
     @Override
     public boolean login(String email, String password) {

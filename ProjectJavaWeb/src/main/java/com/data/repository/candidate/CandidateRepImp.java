@@ -1,17 +1,16 @@
 package com.data.repository.candidate;
 
 import com.data.entity.Candidate;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class CandidateRepImp implements CandidateRep {
 
-    private SessionFactory sessionFactory;
-    public CandidateRepImp(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    private final SessionFactory sessionFactory;
 
     @Override
     public boolean register(Candidate candidate) {

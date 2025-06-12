@@ -24,11 +24,6 @@ public class AuthController {
     private final AccountService accountService;
     private final CandidateService candidateService;
 
-    @GetMapping("/home")
-    public String home() {
-        return "candidate/home";
-    }
-
     @GetMapping("/login")
     public String showLoginForm(Model model) {
         model.addAttribute("accountDto", new AccountDto());

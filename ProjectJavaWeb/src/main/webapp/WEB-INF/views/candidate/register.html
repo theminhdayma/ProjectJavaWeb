@@ -1,175 +1,106 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>Đăng ký tài khoản</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 40px 0;
-        }
-
-        .register-box {
-            width: 600px;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        h2 {
-            text-align: center;
-            color: #a61c1c;
-            margin-bottom: 25px;
-        }
-
-        fieldset {
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        legend {
-            padding: 0 10px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        input[type="email"],
-        input[type="password"],
-        input[type="text"],
-        input[type="date"],
-        input[type="number"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background-color: #f9f9f9;
-        }
-
-        textarea {
-            resize: vertical;
-        }
-
-        .error {
-            color: red;
-            font-size: 12px;
-            margin-top: -8px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #a61c1c;
-            color: white;
-            font-size: 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #8b1616;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen py-10 flex justify-center items-start">
 
-<div class="container">
-    <div class="register-box">
-        <h2>Đăng ký tài khoản ứng viên</h2>
+<div class="w-full max-w-2xl bg-white p-8 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold text-center text-red-700 mb-6">Đăng ký tài khoản ứng viên</h2>
 
-        <form th:action="@{/register}" method="post" th:object="${accountDto}">
+    <form th:action="@{/register}" method="post" th:object="${accountDto}" class="space-y-6">
 
-            <!-- Thông tin tài khoản -->
-            <fieldset>
-                <legend>Thông tin tài khoản</legend>
+        <!-- Thông tin tài khoản -->
+        <fieldset class="border border-gray-300 rounded-md p-4">
+            <legend class="font-semibold text-gray-700 px-2">Thông tin tài khoản</legend>
 
-                <label>Email:</label>
-                <input type="email" th:field="*{email}" />
-                <p class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Email:</label>
+                <input type="email" th:field="*{email}"
+                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+            </div>
 
-                <label>Mật khẩu:</label>
-                <input type="password" th:field="*{password}" />
-                <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Mật khẩu:</label>
+                <input type="password" th:field="*{password}"
+                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+            </div>
 
-                <label>Vai trò:</label>
-                <select th:field="*{role}">
-                    <option value="CANDIDATE">Ứng viên</option>
-                    <option value="ADMIN">Quản trị</option>
-                </select>
-                <p class="error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></p>
-
-                <label>Trạng thái:</label>
-                <select th:field="*{status}">
+            <div class="mb-2">
+                <label class="block text-sm font-medium text-gray-700">Trạng thái:</label>
+                <select th:field="*{status}"
+                        class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
                     <option value="ACTIVE">Hoạt động</option>
                     <option value="INACTIVE">Không hoạt động</option>
                 </select>
-                <p class="error" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
-            </fieldset>
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
+            </div>
+        </fieldset>
 
-            <!-- Thông tin ứng viên -->
-            <fieldset>
-                <legend>Thông tin ứng viên</legend>
+        <!-- Thông tin ứng viên -->
+        <fieldset class="border border-gray-300 rounded-md p-4">
+            <legend class="font-semibold text-gray-700 px-2">Thông tin ứng viên</legend>
 
-                <label>Họ tên:</label>
-                <input type="text" th:field="*{candidateDto.name}" />
-                <p class="error" th:if="${#fields.hasErrors('candidateDto.name')}" th:errors="*{candidateDto.name}"></p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Họ tên:</label>
+                <input type="text" th:field="*{candidateDto.name}"
+                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.name')}" th:errors="*{candidateDto.name}"></p>
+            </div>
 
-                <label>Số điện thoại:</label>
-                <input type="text" th:field="*{candidateDto.phone}" />
-                <p class="error" th:if="${#fields.hasErrors('candidateDto.phone')}" th:errors="*{candidateDto.phone}"></p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Số điện thoại:</label>
+                <input type="text" th:field="*{candidateDto.phone}"
+                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.phone')}" th:errors="*{candidateDto.phone}"></p>
+            </div>
 
-                <label>Ngày sinh:</label>
-                <input type="date" th:field="*{candidateDto.dob}" />
-                <p class="error" th:if="${#fields.hasErrors('candidateDto.dob')}" th:errors="*{candidateDto.dob}"></p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Ngày sinh:</label>
+                <input type="date" th:field="*{candidateDto.dob}"
+                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.dob')}" th:errors="*{candidateDto.dob}"></p>
+            </div>
 
-                <label>Kinh nghiệm (năm):</label>
-                <input type="number" th:field="*{candidateDto.experience}" />
-                <p class="error" th:if="${#fields.hasErrors('candidateDto.experience')}" th:errors="*{candidateDto.experience}"></p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Kinh nghiệm (năm):</label>
+                <input type="number" th:field="*{candidateDto.experience}"
+                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.experience')}" th:errors="*{candidateDto.experience}"></p>
+            </div>
 
-                <label>Giới tính:</label>
-                <select th:field="*{candidateDto.gender}">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Giới tính:</label>
+                <select th:field="*{candidateDto.gender}"
+                        class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
                     <option value="MALE">Nam</option>
                     <option value="FEMALE">Nữ</option>
                     <option value="OTHER">Khác</option>
                 </select>
-                <p class="error" th:if="${#fields.hasErrors('candidateDto.gender')}" th:errors="*{candidateDto.gender}"></p>
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.gender')}" th:errors="*{candidateDto.gender}"></p>
+            </div>
 
-                <label>Mô tả:</label>
-                <textarea th:field="*{candidateDto.description}" rows="3" cols="30"></textarea>
-                <p class="error" th:if="${#fields.hasErrors('candidateDto.description')}" th:errors="*{candidateDto.description}"></p>
-            </fieldset>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Mô tả:</label>
+                <textarea th:field="*{candidateDto.description}" rows="3"
+                          class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.description')}" th:errors="*{candidateDto.description}"></p>
+            </div>
+        </fieldset>
 
-            <button type="submit">Đăng ký</button>
+        <div th:if="${error}" class="text-sm text-red-600 text-center">
+            <p th:text="${error}"></p>
+        </div>
 
-            <p class="error" th:if="${error}" th:text="${error}"></p>
-        </form>
-    </div>
+        <button type="submit"
+                class="w-full bg-red-700 text-white py-2 rounded-md font-semibold hover:bg-red-800 transition">
+            Đăng ký
+        </button>
+    </form>
 </div>
 
 </body>
