@@ -62,7 +62,7 @@ public class AuthController {
             if ("ADMIN".equals(role)) {
                 return "redirect:/admin/dashboard";
             } else if ("CANDIDATE".equals(role)) {
-                return "redirect:/home";
+                return "redirect:/candidate/home";
             } else {
                 model.addAttribute("error", "Vai trò không hợp lệ");
                 return "login";

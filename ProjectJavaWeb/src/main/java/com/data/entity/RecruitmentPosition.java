@@ -8,9 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "recruitment_position")
@@ -39,11 +38,11 @@ public class RecruitmentPosition {
     private int minExperience;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'")
+    @Column(nullable = false)
     private Status status;
 
-    @Column(nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    private LocalDate createdDate;
+    @Column(nullable = false)
+    private LocalDate createdDate = LocalDate.now();
 
     @Column(nullable = false, columnDefinition = "DATE")
     private LocalDate expiredDate;
@@ -54,5 +53,5 @@ public class RecruitmentPosition {
             joinColumns = @JoinColumn(name = "positionId"),
             inverseJoinColumns = @JoinColumn(name = "technologyId")
     )
-    private Set<Technology> technologies;
+    private List<Technology> technologies;
 }

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Technology Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animation cho modal */
+        .modal-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            transform: scale(0.8) translateY(-20px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Success modal animations */
+        .success-modal-content {
+            transform: scale(0.5) rotate(180deg);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .modal-overlay.show .success-modal-content {
+            transform: scale(1) rotate(0deg);
+        }
+
+        /* Delete modal animations */
+        .delete-modal-content {
+            transform: scale(0.7) rotateX(-10deg);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .modal-overlay.show .delete-modal-content {
+            transform: scale(1) rotateX(0deg);
+        }
+
+        /* Bounce animation cho success icon */
+        .bounce-icon {
+            animation: bounceSuccess 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes bounceSuccess {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.3) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        /* Pulse animation cho action icons */
+        .pulse-icon {
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        /* Fade in animation cho flash messages */
+        .flash-message {
+            animation: fadeInSlide 0.5s ease-out;
+        }
+
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Confetti animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f39c12;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex font-sans">
+
+<!-- Sidebar -->
+<div th:insert="admin/sidebar :: SIDEBAR"></div>
+
+<!-- Main Content -->
+<div class="flex-1 p-8">
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="success-modal-content bg-white rounded-lg shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <!-- Header -->
+            <div id="success-header" class="flex items-center p-6 text-white">
+                <div id="success-icon" class="bounce-icon w-12 h-12 mr-4 flex items-center justify-center rounded-full">
+                    <!-- Icon sẽ được set bằng JavaScript -->
+                </div>
+                <div>
+                    <h2 id="success-title" class="text-xl font-bold">Thành công!</h2>
+                    <p id="success-subtitle" class="text-sm opacity-90 mt-1">Thao tác đã được thực hiện</p>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <div class="text-center">
+                    <div id="success-animation" class="mb-4">
+                        <!-- Animation content sẽ được thêm bằng JavaScript -->
+                    </div>
+                    <p id="success-message" class="text-lg font-medium text-gray-900 mb-2">Thao tác thành công!</p>
+                    <p id="success-details" class="text-sm text-gray-600">Chi tiết thao tác</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-center items-center p-6 border-t bg-gray-50">
+                <button type="button"
+                        onclick="closeSuccessModal()"
+                        class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-sm font-medium hover:from-green-600 hover:to-green-700 transform transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Đóng
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="delete-modal-content bg-white rounded-lg shadow-2xl w-full max-w-md mx-4">
+            <!-- Header -->
+            <div class="flex items-center p-6 border-b bg-gradient-to-r from-red-500 to-red-600 text-white rounded-t-lg">
+                <svg class="w-8 h-8 mr-3 pulse-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <h2 class="text-xl font-bold">Xác nhận xóa</h2>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="flex-shrink-0 w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg font-medium text-gray-900 mb-2">Bạn có chắc muốn xóa công nghệ này?</p>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Công nghệ: <span id="tech-name-to-delete" class="font-semibold text-red-600"></span>
+                    </p>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                        <p class="text-xs text-yellow-700">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Nếu công nghệ đang được sử dụng, nó sẽ được đặt thành không hoạt động thay vì xóa hoàn toàn.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end items-center p-6 border-t bg-gray-50 space-x-3 rounded-b-lg">
+                <button type="button"
+                        onclick="closeDeleteModal()"
+                        class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 hover:border-gray-400 transform transition-all duration-200 hover:scale-105">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Hủy
+                    </span>
+                </button>
+                <form id="delete-form" method="post" style="display: inline;">
+                    <button type="submit"
+                            class="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg text-sm font-medium hover:from-red-600 hover:to-red-700 transform transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Xóa
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages (Fallback) -->
+    <div th:if="${successMessage}" class="flash-message mb-4 text-green-700 bg-green-100 p-4 rounded-lg border border-green-200 flex items-center gap-2">
+        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p th:text="${successMessage}"></p>
+    </div>
+    <div th:if="${errorMessage}" class="flash-message mb-4 text-red-700 bg-red-100 p-4 rounded-lg border border-red-200 flex items-center gap-2">
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Technology Management
+        </h2>
+        <div class="flex gap-3">
+            <form th:action="@{/admin/technology}" method="get" class="flex gap-2">
+                <input type="text" name="search" th:value="${search}" placeholder="Tìm kiếm công nghệ..."
+                       class="w-64 border border-gray-300 px-4 py-2 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-red-300 focus:outline-none">
+                <button type="submit"
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm shadow transform transition-all duration-200 hover:scale-105">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Tìm kiếm
+                    </span>
+                </button>
+            </form>
+            <a th:href="@{/admin/technology/add}"
+               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm shadow transform transition-all duration-200 hover:scale-105 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Thêm công nghệ
+            </a>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white rounded-lg shadow">
+        <table class="min-w-full text-sm text-left text-gray-700">
+            <thead class="bg-gray-100">
+            <tr>
+                <th class="px-6 py-3 border-b text-center font-semibold">ID</th>
+                <th class="px-6 py-3 border-b font-semibold">Tên công nghệ</th>
+                <th class="px-6 py-3 border-b text-center font-semibold">Trạng thái</th>
+                <th class="px-6 py-3 border-b text-center font-semibold">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="tech, iterStat : ${technologies}" class="hover:bg-gray-50 transition-colors duration-200">
+                <td class="px-6 py-4 border-b text-center font-medium" th:text="${tech.id}">1</td>
+                <td class="px-6 py-4 border-b" th:text="${tech.name}">Java</td>
+                <td class="px-6 py-4 border-b text-center">
+                    <span th:if="${tech.status.name()} == 'ACTIVE'"
+                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                            <circle cx="4" cy="4" r="3"/>
+                        </svg>
+                        Hoạt động
+                    </span>
+                    <span th:if="${tech.status.name()} != 'ACTIVE'"
+                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                            <circle cx="4" cy="4" r="3"/>
+                        </svg>
+                        Không hoạt động
+                    </span>
+                </td>
+                <td class="px-6 py-4 border-b">
+                    <div class="flex justify-center gap-3">
+                        <a th:href="@{'/admin/technology/edit/' + ${tech.id}}"
+                           title="Chỉnh sửa"
+                           class="text-yellow-500 hover:text-yellow-600 transform transition-all duration-200 hover:scale-110 p-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </a>
+                        <button type="button"
+                                title="Xóa"
+                                class="text-red-600 hover:text-red-800 transform transition-all duration-200 hover:scale-110 p-1"
+                                th:attr="onclick='showDeleteModal(' + ${tech.id} + ', \'' + ${tech.name} + '\')'">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${technologies.size() == 0}">
+                <td colspan="4" class="text-center py-8 text-gray-500">
+                    <div class="flex flex-col items-center gap-2">
+                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                        </svg>
+                        <span>Không có công nghệ nào được tìm thấy</span>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-600">
+            Hiển thị <span class="font-medium" th:text="${technologies.size()}">0</span>
+            trong tổng số <span class="font-medium" th:text="${totalPages * 10}">0</span> công nghệ
+        </div>
+        <div class="flex space-x-1 text-sm items-center" th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/admin/technology(page=${currentPage - 1}, search=${search})}"
+               class="px-3 py-2 border rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Trước
+            </a>
+
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/admin/technology(page=${i}, search=${search})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == currentPage} ? 'bg-red-600 text-white border-red-600' : 'hover:bg-gray-200 border-gray-300'"
+                   class="px-3 py-2 border rounded-lg transition-colors">
+                </a>
+            </span>
+
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/admin/technology(page=${currentPage + 1}, search=${search})}"
+               class="px-3 py-2 border rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1">
+                Sau
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Hidden data for JavaScript -->
+<div style="display: none;">
+    <span id="success-data"
+          th:attr="data-message=${successMessage},
+                   data-action=${actionType},
+                   data-tech-name=${techName},
+                   data-old-name=${oldName}"></span>
+</div>
+
+<script>
+    // Hàm hiển thị modal xác nhận xóa
+    function showDeleteModal(techId, techName) {
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteForm = document.getElementById('delete-form');
+        const techNameSpan = document.getElementById('tech-name-to-delete');
+
+        techNameSpan.textContent = techName;
+        deleteForm.action = '/admin/technology/delete/' + techId;
+
+        deleteModal.style.display = 'flex';
+        setTimeout(() => {
+            deleteModal.classList.add('show');
+        }, 10);
+    }
+
+    // Hàm đóng modal xác nhận xóa
+    function closeDeleteModal() {
+        const deleteModal = document.getElementById('delete-modal');
+        deleteModal.classList.remove('show');
+
+        setTimeout(() => {
+            deleteModal.style.display = 'none';
+        }, 300);
+    }
+
+    // Hàm hiển thị modal thành công
+    function showSuccessModal(actionType, message, techName, oldName) {
+        const successModal = document.getElementById('success-modal');
+        const successHeader = document.getElementById('success-header');
+        const successIcon = document.getElementById('success-icon');
+        const successTitle = document.getElementById('success-title');
+        const successSubtitle = document.getElementById('success-subtitle');
+        const successMessage = document.getElementById('success-message');
+        const successDetails = document.getElementById('success-details');
+        const successAnimation = document.getElementById('success-animation');
+
+        // Reset classes
+        successHeader.className = 'flex items-center p-6 text-white';
+        successIcon.className = 'bounce-icon w-12 h-12 mr-4 flex items-center justify-center rounded-full';
+
+        switch(actionType) {
+            case 'add':
+                successHeader.classList.add('bg-gradient-to-r', 'from-green-500', 'to-green-600');
+                successIcon.classList.add('bg-green-100');
+                successIcon.innerHTML = `
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                `;
+                successTitle.textContent = 'Thêm thành công!';
+                successSubtitle.textContent = 'Công nghệ mới đã được thêm vào hệ thống';
+                successDetails.innerHTML = `Công nghệ <strong class="text-green-600">${techName}</strong> đã được thêm thành công!`;
+                createConfetti();
+                break;
+
+            case 'edit':
+                successHeader.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600');
+                successIcon.classList.add('bg-blue-100');
+                successIcon.innerHTML = `
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                `;
+                successTitle.textContent = 'Cập nhật thành công!';
+                successSubtitle.textContent = 'Thông tin công nghệ đã được cập nhật';
+                if (oldName && oldName !== techName) {
+                    successDetails.innerHTML = `Công nghệ <strong class="text-gray-500">${oldName}</strong> đã được đổi tên thành <strong class="text-blue-600">${techName}</strong>`;
+                } else {
+                    successDetails.innerHTML = `Công nghệ <strong class="text-blue-600">${techName}</strong> đã được cập nhật thành công!`;
+                }
+                break;
+
+            case 'delete':
+                successHeader.classList.add('bg-gradient-to-r', 'from-red-500', 'to-red-600');
+                successIcon.classList.add('bg-red-100');
+                successIcon.innerHTML = `
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                `;
+                successTitle.textContent = 'Xóa thành công!';
+                successSubtitle.textContent = 'Công nghệ đã được xóa khỏi hệ thống';
+                successDetails.innerHTML = `Công nghệ <strong class="text-red-600">${techName}</strong> đã được xóa thành công!`;
+                break;
+
+            case 'deactivate':
+                successHeader.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-orange-600');
+                successIcon.classList.add('bg-orange-100');
+                successIcon.innerHTML = `
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/>
+                    </svg>
+                `;
+                successTitle.textContent = 'Đã vô hiệu hóa!';
+                successSubtitle.textContent = 'Công nghệ đã được đặt thành không hoạt động';
+                successDetails.innerHTML = `Công nghệ <strong class="text-orange-600">${techName}</strong> đã được đặt thành không hoạt động vì đang được sử dụng!`;
+                break;
+        }
+
+        successMessage.textContent = message;
+
+        successModal.style.display = 'flex';
+        setTimeout(() => {
+            successModal.classList.add('show');
+        }, 10);
+
+        // Auto close after 4 seconds
+        setTimeout(() => {
+            closeSuccessModal();
+        }, 4000);
+    }
+
+    // Hàm đóng modal thành công
+    function closeSuccessModal() {
+        const successModal = document.getElementById('success-modal');
+        successModal.classList.remove('show');
+
+        setTimeout(() => {
+            successModal.style.display = 'none';
+        }, 300);
+    }
+
+    // Tạo hiệu ứng confetti
+    function createConfetti() {
+        const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#f1c40f'];
+        const confettiContainer = document.body;
+
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+
+                confettiContainer.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 4000);
+            }, i * 50);
+        }
+    }
+
+    // Đóng modal khi click outside
+    document.addEventListener('click', function(event) {
+        const deleteModal = document.getElementById('delete-modal');
+        const successModal = document.getElementById('success-modal');
+
+        if (event.target === deleteModal) {
+            closeDeleteModal();
+        }
+        if (event.target === successModal) {
+            closeSuccessModal();
+        }
+    });
+
+    // Đóng modal khi nhấn ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDeleteModal();
+            closeSuccessModal();
+        }
+    });
+
+    // Khởi tạo khi trang load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ẩn modal khi trang load
+        document.getElementById('delete-modal').style.display = 'none';
+        document.getElementById('success-modal').style.display = 'none';
+
+        // Kiểm tra và hiển thị success modal nếu có
+        const successData = document.getElementById('success-data');
+        if (successData) {
+            const message = successData.getAttribute('data-message');
+            const actionType = successData.getAttribute('data-action');
+            const techName = successData.getAttribute('data-tech-name');
+            const oldName = successData.getAttribute('data-old-name');
+
+            if (message && actionType) {
+                setTimeout(() => {
+                    showSuccessModal(actionType, message, techName, oldName);
+                }, 500);
+            }
+        }
+
+        // Auto hide flash messages after 3 seconds (fallback)
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.transition = 'all 0.5s ease-out';
+                message.style.opacity = '0';
+                message.style.transform = 'translateY(-20px)';
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            }, 3000);
+        });
+    });
+</script>
+
+</body>
+</html>

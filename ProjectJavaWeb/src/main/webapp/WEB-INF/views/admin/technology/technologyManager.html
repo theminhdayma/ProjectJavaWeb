@@ -4,6 +4,44 @@
     <meta charset="UTF-8">
     <title>Technology Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animation đơn giản cho modal */
+        .modal-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        /* Fade in animation cho flash messages */
+        .flash-message {
+            animation: fadeInSlide 0.5s ease-out;
+        }
+
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex font-sans">
 
@@ -12,37 +50,120 @@
 
 <!-- Main Content -->
 <div class="flex-1 p-8">
-    <!-- Flash Messages -->
-    <div th:if="${successMessage}" class="mb-4 text-green-700 bg-green-100 p-4 rounded">
-        <p th:text="${successMessage}"></p>
+
+    <!-- Success Modal - Đơn giản -->
+    <div id="success-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <!-- Header -->
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-bold text-gray-900">Thông báo</h2>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <p id="success-message" class="text-lg font-medium text-gray-900 mb-2">Thao tác thành công!</p>
+                    <p id="success-details" class="text-sm text-gray-600">Chi tiết thao tác</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-center items-center p-6 border-t bg-gray-50">
+                <button type="button"
+                        onclick="closeSuccessModal()"
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                    Đóng
+                </button>
+            </div>
+        </div>
     </div>
-    <div th:if="${errorMessage}" class="mb-4 text-red-700 bg-red-100 p-4 rounded">
-        <p th:text="${errorMessage}"></p>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <!-- Header -->
+            <div class="flex items-center p-6 border-b bg-red-50">
+                <svg class="w-8 h-8 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <h2 class="text-xl font-bold text-red-800">Xác nhận xóa</h2>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <div class="text-center">
+                    <p class="text-lg font-medium text-gray-900 mb-2">Bạn có chắc muốn xóa công nghệ này?</p>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Công nghệ: <span id="tech-name-to-delete" class="font-semibold text-red-600"></span>
+                    </p>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                        <p class="text-xs text-yellow-700">
+                            Nếu công nghệ đang được sử dụng, nó sẽ được đặt thành không hoạt động thay vì xóa hoàn toàn.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end items-center p-6 border-t bg-gray-50 space-x-3">
+                <button type="button"
+                        onclick="closeDeleteModal()"
+                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                    Hủy
+                </button>
+                <form id="delete-form" method="post" style="display: inline;">
+                    <button type="submit"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                        Xóa
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
+
+<!--    &lt;!&ndash; Flash Messages &ndash;&gt;-->
+<!--    <div th:if="${successMessage}" class="flash-message mb-4 text-green-700 bg-green-100 p-4 rounded-lg border border-green-200 flex items-center gap-2">-->
+<!--        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>-->
+<!--        </svg>-->
+<!--        <p th:text="${successMessage}"></p>-->
+<!--    </div>-->
+<!--    <div th:if="${errorMessage}" class="flash-message mb-4 text-red-700 bg-red-100 p-4 rounded-lg border border-red-200 flex items-center gap-2">-->
+<!--        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>-->
+<!--        </svg>-->
+<!--        <p th:text="${errorMessage}"></p>-->
+<!--    </div>-->
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2"
-                 viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Technology
+            Technology Management
         </h2>
-
         <div class="flex gap-3">
             <form th:action="@{/admin/technology}" method="get" class="flex gap-2">
-                <input type="text" name="search" th:value="${search}" placeholder="Search here..."
+                <input type="text" name="search" th:value="${search}" placeholder="Tìm kiếm công nghệ..."
                        class="w-64 border border-gray-300 px-4 py-2 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-red-300 focus:outline-none">
                 <button type="submit"
-                        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm shadow">
-                    Search
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm shadow transition-colors">
+                    Tìm kiếm
                 </button>
             </form>
-            <a href="/admin/technology/add"
-               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm shadow">
-                + Add Technology
+            <a th:href="@{/admin/technology/add}"
+               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm shadow transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Thêm công nghệ
             </a>
         </div>
     </div>
@@ -52,52 +173,216 @@
         <table class="min-w-full text-sm text-left text-gray-700">
             <thead class="bg-gray-100">
             <tr>
-                <th class="px-6 py-3 border-b text-center">ID</th>
-                <th class="px-6 py-3 border-b">Name</th>
-                <th class="px-6 py-3 border-b text-center">Status</th>
-                <th class="px-6 py-3 border-b text-center">Actions</th>
+                <th class="px-6 py-3 border-b text-center font-semibold">ID</th>
+                <th class="px-6 py-3 border-b font-semibold">Tên công nghệ</th>
+                <th class="px-6 py-3 border-b text-center font-semibold">Trạng thái</th>
+                <th class="px-6 py-3 border-b text-center font-semibold">Thao tác</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="tech, iterStat : ${technologies}" class="hover:bg-gray-50">
-                <td class="px-6 py-4 border-b text-center" th:text="${tech.id}">1</td>
+            <tr th:each="tech, iterStat : ${technologies}" class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 border-b text-center font-medium" th:text="${tech.id}">1</td>
                 <td class="px-6 py-4 border-b" th:text="${tech.name}">Java</td>
                 <td class="px-6 py-4 border-b text-center">
-                    <span th:classappend="${tech.status} == 'ACTIVE' ? 'text-green-600' : 'text-red-600'"
-                          th:text="${tech.status}">ACTIVE</span>
+                    <span th:if="${tech.status.name()} == 'ACTIVE'"
+                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Hoạt động
+                    </span>
+                    <span th:if="${tech.status.name()} != 'ACTIVE'"
+                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        Không hoạt động
+                    </span>
+                </td>
                 <td class="px-6 py-4 border-b">
                     <div class="flex justify-center gap-3">
-                        <form th:action="@{'/admin/technology/delete/' + ${tech.id}}" method="post"
-                              onsubmit="return confirm('Bạn có chắc muốn xóa công nghệ ?')">
-
-                        <button title="Delete" class="text-red-600 hover:text-red-800">🗑️</button>
-                        </form>
                         <a th:href="@{'/admin/technology/edit/' + ${tech.id}}"
-                           title="Edit"
-                           class="text-yellow-500 hover:text-yellow-600">✏️</a>
+                           title="Chỉnh sửa"
+                           class="text-yellow-500 hover:text-yellow-600 transition-colors p-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </a>
+                        <button type="button"
+                                title="Xóa"
+                                class="text-red-600 hover:text-red-800 transition-colors p-1"
+                                th:attr="onclick='showDeleteModal(' + ${tech.id} + ', \'' + ${tech.name} + '\')'">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
                     </div>
                 </td>
             </tr>
             <tr th:if="${technologies.size() == 0}">
-                <td colspan="4" class="text-center py-4 text-gray-500">Không có công nghệ nào.</td>
+                <td colspan="4" class="text-center py-8 text-gray-500">
+                    <div class="flex flex-col items-center gap-2">
+                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                        </svg>
+                        <span>Không có công nghệ nào được tìm thấy</span>
+                    </div>
+                </td>
             </tr>
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
-    <div class="flex justify-end mt-6 space-x-1 text-sm">
-        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-            <a th:href="@{/admin/technology(page=${i}, search=${search})}"
-               th:text="${i + 1}"
-               th:classappend="${i == currentPage} ? 'bg-red-600 text-white' : 'hover:bg-gray-200'"
-               class="px-3 py-1 border rounded">
-                1
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-600">
+            Hiển thị <span class="font-medium" th:text="${technologies.size()}">0</span>
+            trong tổng số <span class="font-medium" th:text="${totalPages * 10}">0</span> công nghệ
+        </div>
+        <div class="flex space-x-1 text-sm items-center" th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/admin/technology(page=${currentPage - 1}, search=${search})}"
+               class="px-3 py-2 border rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Trước
             </a>
-        </span>
+
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/admin/technology(page=${i}, search=${search})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == currentPage} ? 'bg-red-600 text-white border-red-600' : 'hover:bg-gray-200 border-gray-300'"
+                   class="px-3 py-2 border rounded-lg transition-colors">
+                </a>
+            </span>
+
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/admin/technology(page=${currentPage + 1}, search=${search})}"
+               class="px-3 py-2 border rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1">
+                Sau
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
     </div>
 
 </div>
+
+<!-- Hidden data for JavaScript -->
+<div style="display: none;">
+    <span id="success-data"
+          th:attr="data-message=${successMessage},
+                   data-action=${actionType},
+                   data-tech-name=${techName},
+                   data-old-name=${oldName}"></span>
+</div>
+
+<script>
+    // Hàm hiển thị modal xác nhận xóa
+    function showDeleteModal(techId, techName) {
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteForm = document.getElementById('delete-form');
+        const techNameSpan = document.getElementById('tech-name-to-delete');
+
+        techNameSpan.textContent = techName;
+        deleteForm.action = '/admin/technology/delete/' + techId;
+
+        deleteModal.style.display = 'flex';
+        setTimeout(() => {
+            deleteModal.classList.add('show');
+        }, 10);
+    }
+
+    // Hàm đóng modal xác nhận xóa
+    function closeDeleteModal() {
+        const deleteModal = document.getElementById('delete-modal');
+        deleteModal.classList.remove('show');
+
+        setTimeout(() => {
+            deleteModal.style.display = 'none';
+        }, 300);
+    }
+
+    // Hàm hiển thị modal thành công - đơn giản
+    function showSuccessModal(message, techName) {
+        const successModal = document.getElementById('success-modal');
+        const successMessage = document.getElementById('success-message');
+        const successDetails = document.getElementById('success-details');
+
+        successMessage.textContent = message;
+        successDetails.textContent = `Công nghệ ${techName} đã được xử lý thành công!`;
+
+        successModal.style.display = 'flex';
+        setTimeout(() => {
+            successModal.classList.add('show');
+        }, 10);
+
+        // Auto close after 3 seconds
+        setTimeout(() => {
+            closeSuccessModal();
+        }, 3000);
+    }
+
+    // Hàm đóng modal thành công
+    function closeSuccessModal() {
+        const successModal = document.getElementById('success-modal');
+        successModal.classList.remove('show');
+
+        setTimeout(() => {
+            successModal.style.display = 'none';
+        }, 300);
+    }
+
+    // Đóng modal khi click outside
+    document.addEventListener('click', function(event) {
+        const deleteModal = document.getElementById('delete-modal');
+        const successModal = document.getElementById('success-modal');
+
+        if (event.target === deleteModal) {
+            closeDeleteModal();
+        }
+        if (event.target === successModal) {
+            closeSuccessModal();
+        }
+    });
+
+    // Đóng modal khi nhấn ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeDeleteModal();
+            closeSuccessModal();
+        }
+    });
+
+    // Khởi tạo khi trang load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ẩn modal khi trang load
+        document.getElementById('delete-modal').style.display = 'none';
+        document.getElementById('success-modal').style.display = 'none';
+
+        // Kiểm tra và hiển thị success modal nếu có
+        const successData = document.getElementById('success-data');
+        if (successData) {
+            const message = successData.getAttribute('data-message');
+            const techName = successData.getAttribute('data-tech-name');
+
+            if (message && techName) {
+                setTimeout(() => {
+                    showSuccessModal(message, techName);
+                }, 500);
+            }
+        }
+
+        // Auto hide flash messages after 3 seconds
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.transition = 'all 0.5s ease-out';
+                message.style.opacity = '0';
+                message.style.transform = 'translateY(-20px)';
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            }, 3000);
+        });
+    });
+</script>
 
 </body>
 </html>

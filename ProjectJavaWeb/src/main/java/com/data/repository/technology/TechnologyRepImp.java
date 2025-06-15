@@ -116,18 +116,32 @@ public class TechnologyRepImp implements TechnologyRep {
         try {
             session = sessionFactory.openSession();
             session.beginTransaction();
+
             Technology technology = session.get(Technology.class, id);
             if (technology != null) {
-                if ((technology.getCandidates() != null && !technology.getCandidates().isEmpty()) ||
-                        (technology.getPositions() != null && !technology.getPositions().isEmpty())) {
-                    return false;
+                String checkCandidateQuery = "SELECT COUNT(c) FROM Candidate c JOIN c.technologies t WHERE t.id = :techId";
+                Long candidateCount = (Long) session.createQuery(checkCandidateQuery)
+                        .setParameter("techId", id)
+                        .uniqueResult();
+
+                String checkPositionQuery = "SELECT COUNT(p) FROM RecruitmentPosition p JOIN p.technologies t WHERE t.id = :techId";
+                Long positionCount = (Long) session.createQuery(checkPositionQuery)
+                        .setParameter("techId", id)
+                        .uniqueResult();
+
+                boolean hasRelations = (candidateCount > 0) || (positionCount > 0);
+
+                if (hasRelations) {
+                    technology.setStatus(Status.INACTIVE);
+                    session.update(technology);
+                } else {
+                    session.delete(technology);
                 }
 
-                technology.setStatus(Status.INACTIVE);
-                session.update(technology);
                 session.getTransaction().commit();
                 return true;
             }
+
             return false;
         } catch (Exception e) {
             if (session != null && session.getTransaction().isActive()) {

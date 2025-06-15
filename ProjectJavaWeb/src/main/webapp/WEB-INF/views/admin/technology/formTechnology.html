@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${isEdit} ? 'Chỉnh sửa công nghệ' : 'Thêm công nghệ mới'">Technology Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animation cho form */
+        .form-container {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animation cho error messages */
+        .error-message {
+            animation: shakeError 0.5s ease-out;
+        }
+
+        @keyframes shakeError {
+            0%, 20%, 40%, 60%, 80% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+        }
+
+        /* Focus animation */
+        .input-focus:focus {
+            transform: scale(1.02);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex font-sans">
+
+<!-- Sidebar -->
+<div th:insert="admin/sidebar :: SIDEBAR"></div>
+
+<!-- Main Content -->
+<div class="flex-1 p-8">
+
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a th:href="@{/admin/technology}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-red-600 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                    </svg>
+                    Quản lý công nghệ
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500" th:text="${isEdit} ? 'Chỉnh sửa' : 'Thêm mới'">Form</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Form Container -->
+    <div class="form-container max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+            <!-- Header -->
+            <div th:classappend="${isEdit} ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-gradient-to-r from-red-500 to-red-600'"
+                 class="px-6 py-4 text-white">
+                <h2 class="text-2xl font-bold flex items-center gap-3">
+                    <svg th:if="${!isEdit}" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    <svg th:if="${isEdit}" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    <span th:text="${isEdit} ? 'Chỉnh sửa công nghệ' : 'Thêm công nghệ mới'">Form Title</span>
+                </h2>
+                <p class="text-sm opacity-90 mt-1" th:text="${isEdit} ? 'Cập nhật thông tin công nghệ' : 'Điền thông tin để thêm công nghệ mới'">Form Description</p>
+            </div>
+
+            <!-- Form Body -->
+            <form method="post"
+                  th:action="${isEdit} ? @{'/admin/technology/edit/' + ${technologyDto.id}} : @{/admin/technology/add}"
+                  th:object="${technologyDto}"
+                  class="p-6 space-y-6">
+
+                <!-- Hidden ID field for edit -->
+                <input th:if="${isEdit}" type="hidden" th:field="*{id}"/>
+
+                <!-- Technology Name Field -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">
+                        <span class="flex items-center gap-2">
+                            <svg th:classappend="${isEdit} ? 'text-yellow-500' : 'text-red-500'"
+                                 class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                            Tên công nghệ
+                            <span class="text-red-500">*</span>
+                        </span>
+                    </label>
+                    <input type="text"
+                           th:field="*{name}"
+                           th:classappend="${isEdit} ? 'focus:ring-yellow-500 focus:border-yellow-500 hover:border-yellow-300' : 'focus:ring-red-500 focus:border-red-500 hover:border-red-300'"
+                           class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none transition-all duration-300"
+                           placeholder="Nhập tên công nghệ (ví dụ: Java, Python, React...)"/>
+
+                    <!-- Field Error -->
+                    <div th:if="${#fields.hasErrors('name')}" class="error-message">
+                        <p th:errors="*{name}"
+                           class="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200 flex items-center gap-2">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- General Error Message -->
+                <div th:if="${errorMessage}" class="error-message">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-sm text-red-600 font-medium" th:text="${errorMessage}"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end items-center pt-6 border-t border-gray-200 space-x-3">
+                    <a th:href="@{/admin/technology}"
+                       class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 hover:border-gray-400 transform transition-all duration-200 hover:scale-105 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Hủy bỏ
+                    </a>
+                    <button type="submit"
+                            th:classappend="${isEdit} ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700' : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'"
+                            class="px-6 py-3 text-white rounded-lg text-sm font-medium transform transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span th:text="${isEdit} ? 'Cập nhật công nghệ' : 'Lưu công nghệ'">Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Text -->
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="text-sm text-blue-700">
+                    <p class="font-medium mb-1">Lưu ý:</p>
+                    <ul class="list-disc list-inside space-y-1 text-blue-600">
+                        <li>Tên công nghệ không được để trống</li>
+                        <li>Tên công nghệ phải là duy nhất trong hệ thống</li>
+                        <li>Ví dụ tên công nghệ: Java, Python, React, Angular, Node.js...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus vào input đầu tiên
+        const firstInput = document.querySelector('input[type="text"]');
+        if (firstInput) {
+            firstInput.focus();
+        }
+
+        // Add loading state to submit button
+        const form = document.querySelector('form');
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        form.addEventListener('submit', function() {
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Đang xử lý...
+            `;
+        });
+
+        // Auto-resize and validate input
+        const nameInput = document.querySelector('input[name="name"]');
+        if (nameInput) {
+            nameInput.addEventListener('input', function() {
+                // Remove extra spaces
+                this.value = this.value.replace(/\s+/g, ' ');
+
+                // Visual feedback for validation
+                if (this.value.trim().length > 0) {
+                    this.classList.remove('border-red-300');
+                    this.classList.add('border-green-300');
+                } else {
+                    this.classList.remove('border-green-300');
+                    this.classList.add('border-red-300');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
