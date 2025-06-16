@@ -229,10 +229,7 @@
 
     <!-- Pagination -->
     <div class="flex justify-between items-center mt-6">
-        <div class="text-sm text-gray-600">
-            Hiển thị <span class="font-medium" th:text="${technologies.size()}">0</span>
-            trong tổng số <span class="font-medium" th:text="${totalPages * 10}">0</span> công nghệ
-        </div>
+        <div></div>
         <div class="flex space-x-1 text-sm items-center" th:if="${totalPages > 1}">
             <a th:if="${currentPage > 0}"
                th:href="@{/admin/technology(page=${currentPage - 1}, search=${search})}"

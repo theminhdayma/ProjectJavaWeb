@@ -8,4 +8,8 @@ public interface AccountService {
     boolean register(Account account);
     boolean checkEmail(String email);
     Account findAccountByEmail(String email);
+    boolean resetPassword(String email, String newPassword);
+    boolean lockCandidate(int id);
+    boolean unlockCandidate(int id);
+    Account findAccountByCandidateId(int candidateId);
 }

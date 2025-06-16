@@ -91,5 +91,96 @@ public class AccountRepImp implements AccountRep {
         }
     }
 
+    @Override
+    public boolean resetPassword(String email, String newPassword) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            session.beginTransaction();
+            Query query = session.createQuery("UPDATE Account SET password = :newPassword WHERE email = :email");
+            query.setParameter("newPassword", newPassword);
+            query.setParameter("email", email);
+            int result = query.executeUpdate();
+            session.getTransaction().commit();
+            return result > 0;
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public boolean lockCandidate(int id) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            session.beginTransaction();
+            Query query = session.createQuery("UPDATE Account SET status = 'INACTIVE' WHERE id = :id");
+            query.setParameter("id", id);
+            int result = query.executeUpdate();
+            session.getTransaction().commit();
+            return result > 0;
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public boolean unlockCandidate(int id) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            session.beginTransaction();
+            Query query = session.createQuery("UPDATE Account SET status = 'ACTIVE' WHERE id = :id");
+            query.setParameter("id", id);
+            int result = query.executeUpdate();
+            session.getTransaction().commit();
+            return result > 0;
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public Account findAccountByCandidateId(int candidateId) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            Query<Account> query = session.createQuery("FROM Account WHERE candidate.id = :candidateId", Account.class);
+            query.setParameter("candidateId", candidateId);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
 
 }
