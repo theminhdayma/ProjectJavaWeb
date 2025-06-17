@@ -4,7 +4,6 @@ import com.data.entity.Candidate;
 import com.data.repository.candidate.CandidateRep;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -14,7 +13,7 @@ public class CandidateServiceImp implements CandidateService {
     private final CandidateRep candidateRep;
 
     @Override
-    public boolean register(Candidate candidate) {
+    public Candidate register(Candidate candidate) {
         return candidateRep.register(candidate);
     }
 
@@ -24,27 +23,20 @@ public class CandidateServiceImp implements CandidateService {
     }
 
     @Override
-    public List<Candidate> getCandidates(int page, int size) {
-        return candidateRep.getCandidates(page, size);
-    }
-
-    @Override
-    public List<Candidate> getCandidatesByName(String name, int page, int size) {
-        return candidateRep.getCandidatesByName(name, page, size);
-    }
-
-    @Override
-    public long countAllCandidates() {
-        return candidateRep.countAllCandidates();
-    }
-
-    @Override
-    public long countCandidatesByName(String name) {
-        return candidateRep.countCandidatesByName(name);
-    }
-
-    @Override
     public Candidate getCandidateById(int id) {
         return candidateRep.getCandidateById(id);
+    }
+
+    // PHƯƠNG THỨC LỌC TỔNG HỢP DUY NHẤT (KHÔNG CÓ TECHNOLOGY)
+    @Override
+    public List<Candidate> getFilteredCandidates(String search, String gender, Integer age,
+                                                 Integer experience, int page, int size) {
+        return candidateRep.getFilteredCandidates(search, gender, age, experience, page, size);
+    }
+
+    @Override
+    public long countFilteredCandidates(String search, String gender, Integer age,
+                                        Integer experience) {
+        return candidateRep.countFilteredCandidates(search, gender, age, experience);
     }
 }

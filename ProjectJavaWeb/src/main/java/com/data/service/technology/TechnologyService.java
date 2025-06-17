@@ -14,4 +14,5 @@ public interface TechnologyService {
     boolean saveTechnology(Technology technology);
     boolean updateTechnology(Technology technology);
     boolean checkNameTechnology(String name);
+    List<Technology> findAllTechnologies();
 }

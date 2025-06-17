@@ -4,40 +4,61 @@
     <meta charset="UTF-8">
     <title>Đăng ký tài khoản</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .error-field {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 1px #dc2626 !important;
+        }
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen py-10 flex justify-center items-start">
 
 <div class="w-full max-w-2xl bg-white p-8 rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold text-center text-red-700 mb-6">Đăng ký tài khoản ứng viên</h2>
 
-    <form th:action="@{/register}" method="post" th:object="${accountDto}" class="space-y-6">
+    <form th:action="@{/register}" method="post" th:object="${authDto}" class="space-y-6">
 
         <!-- Thông tin tài khoản -->
         <fieldset class="border border-gray-300 rounded-md p-4">
             <legend class="font-semibold text-gray-700 px-2">Thông tin tài khoản</legend>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Email:</label>
+                <label class="block text-sm font-medium text-gray-700">Email: <span class="text-red-500">*</span></label>
                 <input type="email" th:field="*{email}"
-                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                       th:class="${#fields.hasErrors('email')} ? 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 error-field' : 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500'"
+                       placeholder="Nhập email của bạn" />
+                <!-- Hiển thị CHỈ 1 lỗi đầu tiên -->
+                <span th:if="${#fields.hasErrors('email')}"
+                      th:text="${#fields.errors('email')[0]}"
+                      class="error-message"></span>
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Mật khẩu:</label>
+                <label class="block text-sm font-medium text-gray-700">Mật khẩu: <span class="text-red-500">*</span></label>
                 <input type="password" th:field="*{password}"
-                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                       th:class="${#fields.hasErrors('password')} ? 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 error-field' : 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500'"
+                       placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" />
+                <!-- Hiển thị CHỈ 1 lỗi đầu tiên -->
+                <span th:if="${#fields.hasErrors('password')}"
+                      th:text="${#fields.errors('password')[0]}"
+                      class="error-message"></span>
             </div>
 
-            <div class="mb-2">
-                <label class="block text-sm font-medium text-gray-700">Trạng thái:</label>
-                <select th:field="*{status}"
-                        class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                    <option value="ACTIVE">Hoạt động</option>
-                    <option value="INACTIVE">Không hoạt động</option>
-                </select>
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Xác nhận mật khẩu: <span class="text-red-500">*</span></label>
+                <input type="password" th:field="*{confirmPassword}"
+                       th:class="${#fields.hasErrors('confirmPassword')} ? 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 error-field' : 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500'"
+                       placeholder="Nhập lại mật khẩu" />
+                <!-- Hiển thị CHỈ 1 lỗi đầu tiên -->
+                <span th:if="${#fields.hasErrors('confirmPassword')}"
+                      th:text="${#fields.errors('confirmPassword')[0]}"
+                      class="error-message"></span>
             </div>
         </fieldset>
 
@@ -46,60 +67,92 @@
             <legend class="font-semibold text-gray-700 px-2">Thông tin ứng viên</legend>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Họ tên:</label>
-                <input type="text" th:field="*{candidateDto.name}"
-                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.name')}" th:errors="*{candidateDto.name}"></p>
+                <label class="block text-sm font-medium text-gray-700">Họ tên: <span class="text-red-500">*</span></label>
+                <input type="text" th:field="*{name}"
+                       th:class="${#fields.hasErrors('name')} ? 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 error-field' : 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500'"
+                       placeholder="Nhập họ và tên đầy đủ" />
+                <!-- Hiển thị CHỈ 1 lỗi đầu tiên -->
+                <span th:if="${#fields.hasErrors('name')}"
+                      th:text="${#fields.errors('name')[0]}"
+                      class="error-message"></span>
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Số điện thoại:</label>
-                <input type="text" th:field="*{candidateDto.phone}"
-                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.phone')}" th:errors="*{candidateDto.phone}"></p>
+                <label class="block text-sm font-medium text-gray-700">Số điện thoại: <span class="text-red-500">*</span></label>
+                <input type="text" th:field="*{phone}"
+                       th:class="${#fields.hasErrors('phone')} ? 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 error-field' : 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500'"
+                       placeholder="Ví dụ: 0123456789" />
+                <!-- Hiển thị CHỈ 1 lỗi đầu tiên -->
+                <span th:if="${#fields.hasErrors('phone')}"
+                      th:text="${#fields.errors('phone')[0]}"
+                      class="error-message"></span>
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Ngày sinh:</label>
-                <input type="date" th:field="*{candidateDto.dob}"
-                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.dob')}" th:errors="*{candidateDto.dob}"></p>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Kinh nghiệm (năm):</label>
-                <input type="number" th:field="*{candidateDto.experience}"
-                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.experience')}" th:errors="*{candidateDto.experience}"></p>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Giới tính:</label>
-                <select th:field="*{candidateDto.gender}"
-                        class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <label class="block text-sm font-medium text-gray-700">Giới tính: <span class="text-red-500">*</span></label>
+                <select th:field="*{gender}"
+                        th:class="${#fields.hasErrors('gender')} ? 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 error-field' : 'mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500'">
+                    <option value="">-- Chọn giới tính --</option>
                     <option value="MALE">Nam</option>
                     <option value="FEMALE">Nữ</option>
                     <option value="OTHER">Khác</option>
                 </select>
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.gender')}" th:errors="*{candidateDto.gender}"></p>
+                <!-- Hiển thị CHỈ 1 lỗi đầu tiên -->
+                <span th:if="${#fields.hasErrors('gender')}"
+                      th:text="${#fields.errors('gender')[0]}"
+                      class="error-message"></span>
+            </div>
+
+            <!-- Các field khác giữ nguyên... -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Ngày sinh:</label>
+                <input type="date" th:field="*{dob}"
+                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Kinh nghiệm (năm):</label>
+                <input type="number" th:field="*{experience}" min="0" value="0"
+                       class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+            </div>
+
+            <!-- Phần chọn công nghệ -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Công nghệ quan tâm:</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border rounded-md p-3">
+                    <div th:each="tech : ${technologies}" class="flex items-center">
+                        <input type="checkbox"
+                               th:id="'tech_' + ${tech.id}"
+                               th:field="*{technologyIds}"
+                               th:value="${tech.id}"
+                               class="mr-2 text-red-600 focus:ring-red-500" />
+                        <label th:for="'tech_' + ${tech.id}"
+                               th:text="${tech.name}"
+                               class="text-sm text-gray-700 cursor-pointer"></label>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Chọn các công nghệ bạn quan tâm hoặc có kinh nghiệm</p>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Mô tả:</label>
-                <textarea th:field="*{candidateDto.description}" rows="3"
+                <textarea th:field="*{description}" rows="3"
+                          placeholder="Mô tả ngắn về bản thân..."
                           class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
-                <p class="text-sm text-red-600 mt-1" th:if="${#fields.hasErrors('candidateDto.description')}" th:errors="*{candidateDto.description}"></p>
             </div>
         </fieldset>
-
-        <div th:if="${error}" class="text-sm text-red-600 text-center">
-            <p th:text="${error}"></p>
-        </div>
 
         <button type="submit"
                 class="w-full bg-red-700 text-white py-2 rounded-md font-semibold hover:bg-red-800 transition">
             Đăng ký
         </button>
+
+        <div class="text-center">
+            <p class="text-sm text-gray-600">
+                Đã có tài khoản?
+                <a th:href="@{/login}" class="text-red-700 hover:text-red-800 font-medium">Đăng nhập ngay</a>
+            </p>
+        </div>
     </form>
 </div>
 

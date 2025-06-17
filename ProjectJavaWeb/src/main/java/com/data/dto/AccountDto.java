@@ -25,9 +25,11 @@ public class AccountDto {
     @Email(message = "Email không hợp lệ")
     private String email;
 
-    @NotBlank(message = "Password không được để trống")
-    @Size(min = 6, max = 255, message = "Password phải từ 6 trở lên")
+    @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
+
+    @NotBlank(message = "Xác nhận mật khẩu không được để trống")
+    private String confirmPassword;
 
     private Status status = Status.ACTIVE;
 }

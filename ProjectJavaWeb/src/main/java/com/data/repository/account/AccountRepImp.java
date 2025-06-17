@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -12,19 +13,44 @@ import org.springframework.stereotype.Repository;
 public class AccountRepImp implements AccountRep {
 
     private final SessionFactory sessionFactory;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
     @Override
-    public boolean login(String email, String password) {
+    public Account findByEmail(String email) {
         Session session = null;
         try {
             session = sessionFactory.openSession();
-            Query query = session.createQuery("FROM Account WHERE email = :email AND password = :password AND status = 'ACTIVE'");
+            Query<Account> query = session.createQuery("FROM Account WHERE email = :email", Account.class);
             query.setParameter("email", email);
-            query.setParameter("password", password);
-            return query.uniqueResult() != null;
+            return query.uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public boolean validatePassword(String rawPassword, String storedPassword) {
+        return bCryptPasswordEncoder.matches(rawPassword, storedPassword);
+    }
+
+    @Override
+    public void updateLoginStatus(String email, boolean status) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            Query<?> query = session.createQuery(
+                    "UPDATE Account SET status = :status WHERE email = :email");
+            query.setParameter("status", status ? "ACTIVE" : "INACTIVE");
+            query.setParameter("email", email);
+            query.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (session != null) {
                 session.close();

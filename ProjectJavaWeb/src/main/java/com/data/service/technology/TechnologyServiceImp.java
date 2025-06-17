@@ -58,5 +58,10 @@ public class TechnologyServiceImp implements TechnologyService {
         return technologyRep.checkNameTechnology(name);
     }
 
+    @Override
+    public List<Technology> findAllTechnologies() {
+        return technologyRep.findAllTechnologies();
+    }
+
 
 }

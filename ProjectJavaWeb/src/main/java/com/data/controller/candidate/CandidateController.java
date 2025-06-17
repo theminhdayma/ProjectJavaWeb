@@ -5,16 +5,17 @@ import com.data.entity.Candidate;
 import com.data.service.account.AccountService;
 import com.data.service.candidate.CandidateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.SecureRandom;
 import java.util.List;
 
 import static com.data.utils.PaginationUtil.DEFAULT_PAGE;
 import static com.data.utils.PaginationUtil.DEFAULT_SIZE;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/candidate")
@@ -22,38 +23,42 @@ public class CandidateController {
 
     private final CandidateService candidateService;
     private final AccountService accountService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @GetMapping
     public String listCandidates(
             @RequestParam(defaultValue = "" + DEFAULT_PAGE) int page,
             @RequestParam(defaultValue = "" + DEFAULT_SIZE) int size,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) Integer age,
+            @RequestParam(required = false) Integer experience,
             Model model) {
 
-        List<Candidate> candidates;
-        long totalItems;
-
-        if (search != null && !search.trim().isEmpty()) {
-            candidates = candidateService.getCandidatesByName(search.trim(), page, size);
-            totalItems = candidateService.countCandidatesByName(search.trim());
-            model.addAttribute("search", search);
-        } else {
-            candidates = candidateService.getCandidates(page, size);
-            totalItems = candidateService.countAllCandidates();
-        }
+        // Sử dụng phương thức lọc tổng hợp duy nhất cho mọi trường hợp (không có technology)
+        List<Candidate> candidates = candidateService.getFilteredCandidates(
+                search, gender, age, experience, page, size);
+        long totalItems = candidateService.countFilteredCandidates(
+                search, gender, age, experience);
 
         int totalPages = (int) Math.ceil((double) totalItems / size);
 
+        // Thêm tất cả các thuộc tính vào model
         model.addAttribute("candidates", candidates);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("totalItems", totalItems);
-        model.addAttribute("pageSize", size); // Thêm pageSize vào model
+        model.addAttribute("pageSize", size);
+
+        // Giữ trạng thái form lọc (không có technology)
+        model.addAttribute("search", search);
+        model.addAttribute("gender", gender);
+        model.addAttribute("age", age);
+        model.addAttribute("experience", experience);
 
         return "admin/candidate/candidateManager";
     }
 
-    // Các phương thức khác giữ nguyên...
     @GetMapping("/deactivate/{id}")
     public String deactivateCandidate(@PathVariable int id, RedirectAttributes redirectAttributes) {
         try {
@@ -93,8 +98,10 @@ public class CandidateController {
                 return "error:Không tìm thấy tài khoản ứng viên!";
             }
 
-            String newPassword = generateSecureRandomPassword();
-            boolean success = accountService.resetPassword(account.getEmail(), newPassword);
+            // Tạo mật khẩu mới ngẫu nhiên
+            String newPassword = "password123";
+            String encodedPassword = bCryptPasswordEncoder.encode(newPassword);
+            boolean success = accountService.resetPassword(account.getEmail(), encodedPassword);
 
             if (success) {
                 return "success:" + newPassword;
@@ -121,38 +128,5 @@ public class CandidateController {
             redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi tải thông tin ứng viên: " + e.getMessage());
             return "redirect:/admin/candidate";
         }
-    }
-
-    private String generateSecureRandomPassword() {
-        String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String lowerCase = "abcdefghijklmnopqrstuvwxyz";
-        String numbers = "0123456789";
-        String specialChars = "!@#$%^&*";
-        String allChars = upperCase + lowerCase + numbers + specialChars;
-
-        SecureRandom random = new SecureRandom();
-        StringBuilder password = new StringBuilder();
-
-        // Đảm bảo có ít nhất 1 ký tự từ mỗi loại
-        password.append(upperCase.charAt(random.nextInt(upperCase.length())));
-        password.append(lowerCase.charAt(random.nextInt(lowerCase.length())));
-        password.append(numbers.charAt(random.nextInt(numbers.length())));
-        password.append(specialChars.charAt(random.nextInt(specialChars.length())));
-
-        // Thêm 4 ký tự ngẫu nhiên nữa
-        for (int i = 4; i < 8; i++) {
-            password.append(allChars.charAt(random.nextInt(allChars.length())));
-        }
-
-        // Trộn lại thứ tự
-        char[] passwordArray = password.toString().toCharArray();
-        for (int i = passwordArray.length - 1; i > 0; i--) {
-            int j = random.nextInt(i + 1);
-            char temp = passwordArray[i];
-            passwordArray[i] = passwordArray[j];
-            passwordArray[j] = temp;
-        }
-
-        return new String(passwordArray);
     }
 }

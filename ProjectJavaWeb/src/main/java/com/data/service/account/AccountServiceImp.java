@@ -12,8 +12,18 @@ public class AccountServiceImp implements AccountService {
     private final AccountRep accountRep;
 
     @Override
-    public boolean login(String email, String password) {
-        return accountRep.login(email, password);
+    public Account findByEmail(String email) {
+        return accountRep.findByEmail(email);
+    }
+
+    @Override
+    public boolean validatePassword(String rawPassword, String storedPassword) {
+        return accountRep.validatePassword(rawPassword, storedPassword);
+    }
+
+    @Override
+    public void updateLoginStatus(String email, boolean status) {
+        accountRep.updateLoginStatus(email, status);
     }
 
     @Override

@@ -21,7 +21,7 @@ public class Account {
     @Column(name = "account_id")
     private int accountId;
 
-    @OneToOne
+    @OneToOne(optional = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "candidate_id", referencedColumnName = "id", unique = true)
     private Candidate candidate;
 

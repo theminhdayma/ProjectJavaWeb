@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Quản lý Ứng viên</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .bg-custom-red { background-color: #dc2626; }
         .text-custom-red { color: #dc2626; }
@@ -40,40 +41,77 @@
                 <span th:text="${errorMessage}"></span>
             </div>
 
-            <!-- Search Form -->
+            <!-- Hiển thị trạng thái lọc -->
+            <div th:if="${search != null or gender != null or age != null or experience != null}"
+                 class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-blue-800">
+                        <i class="fa fa-filter mr-1"></i>
+                        Đang áp dụng bộ lọc - Tìm thấy <strong th:text="${totalItems}"></strong> ứng viên
+                    </span>
+                    <a href="/admin/candidate" class="text-sm text-blue-600 hover:text-blue-800">Xóa tất cả bộ lọc</a>
+                </div>
+            </div>
+
+            <!-- Search Form (không có technology) -->
+            <!-- Search Form - cập nhật placeholder -->
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <form th:action="@{/admin/candidate}" method="get" class="flex gap-4 items-end">
-                    <div class="flex flex-col flex-1">
-                        <label class="text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                                </svg>
-                            </div>
-                            <input type="text" name="search" th:value="${search}"
-                                   placeholder="Tìm theo tên..."
-                                   class="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                        </div>
+                <form th:action="@{/admin/candidate}" method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+
+                    <!-- Tìm kiếm theo tên -->
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+                        <input type="text" name="search" th:value="${search}"
+                               placeholder="Tên ứng viên..."
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
-                    <div class="flex gap-2">
-                        <button type="submit" class="bg-custom-red hover:bg-red-700 text-white px-6 py-2 rounded-md text-sm flex items-center gap-2 transition-colors">
-                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                            </svg>
-                            Tìm kiếm
-                        </button>
+                    <!-- Các field khác giữ nguyên -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Giới tính</label>
+                        <select name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="MALE" th:selected="${gender == 'MALE'}">Nam</option>
+                            <option value="FEMALE" th:selected="${gender == 'FEMALE'}">Nữ</option>
+                            <option value="OTHER" th:selected="${gender == 'OTHER'}">Khác</option>
+                        </select>
+                    </div>
 
-                        <a th:href="@{/admin/candidate}" class="bg-gray-100 hover:bg-gray-200 border border-gray-300 px-6 py-2 rounded-md text-gray-700 flex items-center gap-2 transition-colors">
-                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                            </svg>
-                            Làm mới
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tuổi tối thiểu</label>
+                        <select name="age" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="18" th:selected="${age == 18}">18+</option>
+                            <option value="22" th:selected="${age == 22}">22+</option>
+                            <option value="25" th:selected="${age == 25}">25+</option>
+                            <option value="30" th:selected="${age == 30}">30+</option>
+                            <option value="35" th:selected="${age == 35}">35+</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kinh nghiệm</label>
+                        <select name="experience" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="0" th:selected="${experience == 0}">Fresher</option>
+                            <option value="1" th:selected="${experience == 1}">1+ năm</option>
+                            <option value="2" th:selected="${experience == 2}">2+ năm</option>
+                            <option value="3" th:selected="${experience == 3}">3+ năm</option>
+                            <option value="5" th:selected="${experience == 5}">5+ năm</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-5 flex gap-2 pt-4">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            <i class="fa fa-filter mr-2"></i>Lọc
+                        </button>
+                        <a href="/admin/candidate" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors">
+                            <i class="fa fa-refresh mr-2"></i>Xóa bộ lọc
                         </a>
                     </div>
                 </form>
             </div>
+
 
             <!-- Table Container -->
             <div class="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -95,13 +133,11 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                         <tr class="hover:bg-gray-50" th:each="candidate, iterStat : ${candidates}">
-                            <!-- SỬA: STT tính đúng với pageSize -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                                 th:text="${iterStat.count + (currentPage * pageSize)}"></td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900" th:text="${candidate.name}"></div>
                             </td>
-                            <!-- SỬA: Email từ phương thức helper -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                                       th:text="${candidate.email ?: 'Chưa có email'}"></span>
@@ -118,7 +154,6 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${candidate.phone ?: 'Chưa có'}"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${candidate.experience} + ' năm'"></td>
-                            <!-- SỬA: Hiển thị tuổi thay vì ngày sinh -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 <span th:if="${candidate.age}" th:text="${candidate.age} + ' tuổi'"></span>
                                 <span th:unless="${candidate.age}">N/A</span>
@@ -130,7 +165,6 @@
                                     <span th:case="'OTHER'">Khác</span>
                                 </span>
                             </td>
-                            <!-- SỬA: Trạng thái từ phương thức helper -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span th:if="${candidate.accountActive}"
                                       class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -145,63 +179,46 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex gap-2">
-                                    <!-- Nút khóa tài khoản - Icon khóa đóng -->
+                                    <!-- Nút khóa/mở khóa tài khoản -->
                                     <a th:if="${candidate.accountActive}"
                                        th:href="@{'/admin/candidate/deactivate/' + ${candidate.id}}"
                                        title="Khóa tài khoản"
                                        class="text-red-600 hover:text-red-900 transition-colors"
                                        onclick="return confirm('Bạn có chắc chắn muốn khóa tài khoản này?')">
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                            <!-- Icon khóa đóng -->
-                                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                                        </svg>
+                                        <i class="fa fa-lock"></i>
                                     </a>
-
-                                    <!-- Nút mở khóa tài khoản - Icon khóa mở -->
                                     <a th:unless="${candidate.accountActive}"
                                        th:href="@{'/admin/candidate/activate/' + ${candidate.id}}"
                                        title="Mở khóa tài khoản"
                                        class="text-green-600 hover:text-green-900 transition-colors"
                                        onclick="return confirm('Bạn có chắc chắn muốn mở khóa tài khoản này?')">
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                            <!-- Icon khóa mở -->
-                                            <path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>
-                                        </svg>
+                                        <i class="fa fa-unlock"></i>
                                     </a>
 
-                                    <!-- Nút reset password - Icon refresh/reset -->
+                                    <!-- Nút reset password -->
                                     <button th:onclick="'resetPassword(' + ${candidate.id} + ')'"
                                             title="Reset mật khẩu"
                                             class="text-orange-600 hover:text-orange-900 transition-colors">
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                            <!-- Icon reset/refresh -->
-                                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                                        </svg>
+                                        <i class="fa fa-refresh"></i>
                                     </button>
 
-                                    <!-- Nút xem chi tiết - Icon mắt -->
+                                    <!-- Nút xem chi tiết -->
                                     <a th:href="@{'/admin/candidate/detail/' + ${candidate.id}}"
                                        title="Xem chi tiết"
                                        class="text-blue-600 hover:text-blue-900 transition-colors">
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                            <!-- Icon mắt -->
-                                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                                        </svg>
+                                        <i class="fa fa-eye"></i>
                                     </a>
                                 </div>
                             </td>
-
                         </tr>
 
                         <!-- Empty state -->
                         <tr th:if="${#lists.isEmpty(candidates)}">
                             <td colspan="10" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center">
-                                    <svg class="w-12 h-12 text-gray-300 mb-4" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                    </svg>
+                                    <i class="fa fa-users text-gray-300 text-6xl mb-4"></i>
                                     <p class="text-lg font-medium text-gray-900 mb-1">Không tìm thấy ứng viên nào</p>
-                                    <p class="text-sm text-gray-500">Thử thay đổi từ khóa tìm kiếm</p>
+                                    <p class="text-sm text-gray-500">Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc</p>
                                 </div>
                             </td>
                         </tr>
@@ -209,14 +226,13 @@
                     </table>
                 </div>
 
-                <!-- SỬA: Pagination với pageSize đúng -->
                 <div class="bg-white px-6 py-4 border-t border-gray-200" th:if="${totalPages > 1}">
                     <div class="flex items-center justify-between">
                         <div></div>
                         <div class="flex gap-1">
                             <!-- Previous Button -->
                             <a th:if="${currentPage > 0}"
-                               th:href="@{/admin/candidate(page=${currentPage - 1}, size=${pageSize}, search=${search})}"
+                               th:href="@{/admin/candidate(page=${currentPage - 1}, size=${pageSize}, search=${search}, gender=${gender}, age=${age}, experience=${experience})}"
                                class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
                                 Trước
                             </a>
@@ -228,7 +244,7 @@
                             <!-- Page Numbers -->
                             <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
                                 <a th:if="${pageNum != currentPage}"
-                                   th:href="@{/admin/candidate(page=${pageNum}, size=${pageSize}, search=${search})}"
+                                   th:href="@{/admin/candidate(page=${pageNum}, size=${pageSize}, search=${search}, gender=${gender}, age=${age}, experience=${experience})}"
                                    th:text="${pageNum + 1}"
                                    class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"></a>
                                 <span th:if="${pageNum == currentPage}"
@@ -238,7 +254,7 @@
 
                             <!-- Next Button -->
                             <a th:if="${currentPage < totalPages - 1}"
-                               th:href="@{/admin/candidate(page=${currentPage + 1}, size=${pageSize}, search=${search})}"
+                               th:href="@{/admin/candidate(page=${currentPage + 1}, size=${pageSize}, search=${search}, gender=${gender}, age=${age}, experience=${experience})}"
                                class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
                                 Sau
                             </a>
@@ -281,7 +297,6 @@
 <script>
     function resetPassword(candidateId) {
         if (confirm('Bạn có chắc chắn muốn reset mật khẩu cho ứng viên này?')) {
-            // SỬA: Thêm dấu nháy cho URL
             fetch(`/admin/candidate/reset-password/${candidateId}`, {
                 method: 'POST',
                 headers: {

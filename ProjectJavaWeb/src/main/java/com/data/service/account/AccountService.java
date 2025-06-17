@@ -4,7 +4,9 @@ package com.data.service.account;
 import com.data.entity.Account;
 
 public interface AccountService {
-    boolean login (String email, String password);
+    Account findByEmail(String email);
+    boolean validatePassword(String rawPassword, String storedPassword);
+    void updateLoginStatus(String email, boolean status);
     boolean register(Account account);
     boolean checkEmail(String email);
     Account findAccountByEmail(String email);

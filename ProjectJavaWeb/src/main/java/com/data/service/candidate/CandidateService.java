@@ -1,15 +1,17 @@
 package com.data.service.candidate;
 
 import com.data.entity.Candidate;
-
 import java.util.List;
 
 public interface CandidateService {
-    boolean register(Candidate candidate);
+    // Các phương thức hiện tại
+    Candidate register(Candidate candidate);
     boolean checkPhoneNumber(String phoneNumber);
-    List<Candidate> getCandidates(int page, int size);
-    List<Candidate> getCandidatesByName(String name, int page, int size);
-    long countAllCandidates();
-    long countCandidatesByName(String name);
     Candidate getCandidateById(int id);
+
+    // Phương thức lọc tổng hợp duy nhất (không có technology)
+    List<Candidate> getFilteredCandidates(String search, String gender, Integer age,
+                                          Integer experience, int page, int size);
+    long countFilteredCandidates(String search, String gender, Integer age,
+                                 Integer experience);
 }

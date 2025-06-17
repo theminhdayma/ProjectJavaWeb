@@ -35,6 +35,8 @@ public class TechnologyRepImp implements TechnologyRep {
         return technologies;
     }
 
+
+
     @Override
     public List<Technology> findTechnologiesByName(String name, int page, int size) {
         Session session = null;
@@ -217,6 +219,23 @@ public class TechnologyRepImp implements TechnologyRep {
                 session.close();
             }
         }
+    }
+
+    @Override
+    public List<Technology> findAllTechnologies() {
+        Session session = null;
+        List<Technology> technologies = null;
+        try {
+            session = sessionFactory.openSession();
+            technologies = session.createQuery("FROM Technology WHERE status = 'ACTIVE'", Technology.class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        return technologies;
     }
 
 }
