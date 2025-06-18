@@ -1,4 +1,4 @@
-package com.data.controller.recruitmentPosition;
+package com.data.controller.admin.recruitmentPosition;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

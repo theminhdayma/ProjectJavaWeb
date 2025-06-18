@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'red-custom': '#c41e3a',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+<!-- Header -->
+<header class="bg-white shadow-sm" th:fragment="HEADER">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold">
+                    <span class="text-gray-900">Intern</span>
+                    <span class="text-red-custom">SHIP</span>
+                </h1>
+            </div>
+            <button class="bg-red-custom hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                Sign In / Sign Up
+            </button>
+        </div>
+    </div>
+</header>

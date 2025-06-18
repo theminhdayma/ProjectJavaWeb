@@ -14,4 +14,5 @@ public interface CandidateService {
                                           Integer experience, int page, int size);
     long countFilteredCandidates(String search, String gender, Integer age,
                                  Integer experience);
+    boolean updateCandidate(Candidate candidate);
 }

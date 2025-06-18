@@ -208,5 +208,27 @@ public class AccountRepImp implements AccountRep {
         }
     }
 
+    @Override
+    public boolean changePassword(Account account, String newPassword) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            session.beginTransaction();
+            account.setPassword(bCryptPasswordEncoder.encode(newPassword));
+            session.update(account);
+            session.getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
 
 }

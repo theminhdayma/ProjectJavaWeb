@@ -23,7 +23,7 @@
         <p th:text="${successMessage}"></p>
     </div>
 
-    <form th:action="@{/login}" method="post" th:object="${authDto}" class="space-y-4">
+    <form th:action="@{/login}" method="post" th:object="${loginDto}" class="space-y-4">
         <div>
             <input type="email" th:field="*{email}" placeholder="Nhập email của bạn..."
                    class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500"

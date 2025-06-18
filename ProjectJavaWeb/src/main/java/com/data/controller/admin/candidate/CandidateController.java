@@ -1,4 +1,4 @@
-package com.data.controller.candidate;
+package com.data.controller.admin.candidate;
 
 import com.data.entity.Account;
 import com.data.entity.Candidate;
@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.SecureRandom;
 import java.util.List;
 
 import static com.data.utils.PaginationUtil.DEFAULT_PAGE;
@@ -98,10 +99,8 @@ public class CandidateController {
                 return "error:Không tìm thấy tài khoản ứng viên!";
             }
 
-            // Tạo mật khẩu mới ngẫu nhiên
-            String newPassword = "password123";
-            String encodedPassword = bCryptPasswordEncoder.encode(newPassword);
-            boolean success = accountService.resetPassword(account.getEmail(), encodedPassword);
+            String newPassword = generateSecureRandomPassword();
+            boolean success = accountService.resetPassword(account.getEmail(), bCryptPasswordEncoder.encode(newPassword));
 
             if (success) {
                 return "success:" + newPassword;
@@ -128,5 +127,38 @@ public class CandidateController {
             redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi tải thông tin ứng viên: " + e.getMessage());
             return "redirect:/admin/candidate";
         }
+    }
+
+    private String generateSecureRandomPassword() {
+        String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        String numbers = "0123456789";
+        String specialChars = "!@#$%^&*";
+        String allChars = upperCase + lowerCase + numbers + specialChars;
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        // Đảm bảo có ít nhất 1 ký tự từ mỗi loại
+        password.append(upperCase.charAt(random.nextInt(upperCase.length())));
+        password.append(lowerCase.charAt(random.nextInt(lowerCase.length())));
+        password.append(numbers.charAt(random.nextInt(numbers.length())));
+        password.append(specialChars.charAt(random.nextInt(specialChars.length())));
+
+        // Thêm 4 ký tự ngẫu nhiên nữa
+        for (int i = 4; i < 8; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
+        }
+
+        // Trộn lại thứ tự
+        char[] passwordArray = password.toString().toCharArray();
+        for (int i = passwordArray.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            char temp = passwordArray[i];
+            passwordArray[i] = passwordArray[j];
+            passwordArray[j] = temp;
+        }
+
+        return new String(passwordArray);
     }
 }

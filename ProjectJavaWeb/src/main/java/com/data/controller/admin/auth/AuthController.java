@@ -1,6 +1,7 @@
-package com.data.controller.auth;
+package com.data.controller.admin.auth;
 
 import com.data.dto.AuthDto;
+import com.data.dto.LoginDto;
 import com.data.entity.Account;
 import com.data.entity.Candidate;
 import com.data.entity.Technology;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -33,31 +33,32 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLoginForm(Model model) {
-        if (!model.containsAttribute("authDto")) {
-            model.addAttribute("authDto", new AuthDto());
+        if (!model.containsAttribute("loginDto")) {
+            model.addAttribute("loginDto", new LoginDto());
         }
         return "login";
     }
 
     @PostMapping("/login")
-    public String processLogin(@ModelAttribute("authDto") @Valid AuthDto authDto,
+    public String processLogin(@ModelAttribute("loginDto") @Valid LoginDto loginDto,
                                BindingResult bindingResult,
                                Model model,
                                HttpSession session) {
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Vui lòng điền đầy đủ thông tin");
             return "login";
         }
 
         try {
-            Account account = accountService.findAccountByEmail(authDto.getEmail());
+            Account account = accountService.findAccountByEmail(loginDto.getEmail());
 
             if (account == null) {
                 model.addAttribute("error", "Email không tồn tại trong hệ thống");
                 return "login";
             }
 
-            if (!passwordEncoder.matches(authDto.getPassword(), account.getPassword())) {
+            if (!passwordEncoder.matches(loginDto.getPassword(), account.getPassword())) {
                 model.addAttribute("error", "Mật khẩu không đúng");
                 return "login";
             }

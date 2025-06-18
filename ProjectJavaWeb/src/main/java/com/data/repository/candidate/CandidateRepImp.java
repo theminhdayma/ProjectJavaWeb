@@ -78,38 +78,55 @@ public class CandidateRepImp implements CandidateRep {
         }
     }
 
-    // PHƯƠNG THỨC LỌC TỔNG HỢP - CHỈ TÌM KIẾM THEO TÊN
     @Override
     public List<Candidate> getFilteredCandidates(String search, String gender, Integer age,
                                                  Integer experience, int page, int size) {
         Session session = null;
-        List<Candidate> candidates = null;
+        List<Candidate> candidates = new ArrayList<>();
         try {
             session = sessionFactory.openSession();
 
-            StringBuilder hql = new StringBuilder(
-                    "SELECT DISTINCT c FROM Candidate c " +
-                            "LEFT JOIN FETCH c.technologies " +  // Eager fetch technologies
-                            "LEFT JOIN FETCH c.account"          // Eager fetch account
-            );
-
+            // QUERY 1: Lấy IDs với pagination chính xác
+            StringBuilder hqlIds = new StringBuilder("SELECT c.id FROM Candidate c");
             Map<String, Object> parameters = new HashMap<>();
             List<String> conditions = new ArrayList<>();
 
             buildWhereConditions(search, gender, age, experience, conditions, parameters);
 
             if (!conditions.isEmpty()) {
-                hql.append(" WHERE ").append(String.join(" AND ", conditions));
+                hqlIds.append(" WHERE ").append(String.join(" AND ", conditions));
             }
 
-            hql.append(" ORDER BY c.id");
+            hqlIds.append(" ORDER BY c.id");
 
-            Query<Candidate> query = session.createQuery(hql.toString(), Candidate.class);
-            setQueryParameters(query, parameters);
+            Query<Integer> idsQuery = session.createQuery(hqlIds.toString(), Integer.class);
+            setQueryParameters(idsQuery, parameters);
 
-            candidates = query.setFirstResult(page * size)
+            // Áp dụng pagination ở đây - chính xác 100%
+            List<Integer> candidateIds = idsQuery
+                    .setFirstResult(page * size)
                     .setMaxResults(size)
                     .list();
+
+            System.out.println("=== DEBUG ===");
+            System.out.println("Page: " + page + ", Size: " + size);
+            System.out.println("IDs found: " + candidateIds.size());
+            System.out.println("IDs: " + candidateIds);
+
+            // QUERY 2: Lấy full entities với JOIN FETCH dựa trên IDs
+            if (!candidateIds.isEmpty()) {
+                String fetchHql = "SELECT DISTINCT c FROM Candidate c " +
+                        "LEFT JOIN FETCH c.technologies " +
+                        "LEFT JOIN FETCH c.account " +
+                        "WHERE c.id IN (:ids) " +
+                        "ORDER BY c.id";
+
+                Query<Candidate> fetchQuery = session.createQuery(fetchHql, Candidate.class);
+                fetchQuery.setParameter("ids", candidateIds);
+                candidates = fetchQuery.list();
+            }
+
+            System.out.println("Final candidates: " + candidates.size());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -120,6 +137,7 @@ public class CandidateRepImp implements CandidateRep {
         }
         return candidates;
     }
+
 
 
     @Override
@@ -155,6 +173,28 @@ public class CandidateRepImp implements CandidateRep {
             }
         }
         return count;
+    }
+
+    @Override
+    public boolean updateCandidate(Candidate candidate) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            session.beginTransaction();
+            session.update(candidate);
+            session.getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            if (session != null && session.getTransaction().isActive()) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
     }
 
     // Phương thức helper để xây dựng điều kiện WHERE - CHỈ TÌM KIẾM THEO TÊN

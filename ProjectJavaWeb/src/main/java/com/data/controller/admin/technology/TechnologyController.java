@@ -1,4 +1,4 @@
-package com.data.controller.technology;
+package com.data.controller.admin.technology;
 
 import com.data.dto.TechnologyDto;
 import com.data.entity.Technology;

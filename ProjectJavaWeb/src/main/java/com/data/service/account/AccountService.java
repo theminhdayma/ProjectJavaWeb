@@ -14,4 +14,5 @@ public interface AccountService {
     boolean lockCandidate(int id);
     boolean unlockCandidate(int id);
     Account findAccountByCandidateId(int candidateId);
+    boolean changePassword(Account account, String newPassword);
 }

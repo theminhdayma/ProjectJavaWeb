@@ -13,6 +13,7 @@ repositories {
 ext {
     junitVersion = '5.10.2'
     springVersion = '5.3.32'
+    springSecurityVersion = '5.8.5'
 }
 
 sourceCompatibility = '1.8'
@@ -58,6 +59,10 @@ dependencies {
     implementation group: 'org.springframework', name: 'spring-orm', version: '5.3.37'
     implementation 'org.springframework.data:spring-data-commons:2.7.0'
     implementation 'org.springframework.security:spring-security-crypto:5.8.5'
+
+    implementation "org.springframework.security:spring-security-web:${springSecurityVersion}"
+    implementation "org.springframework.security:spring-security-config:${springSecurityVersion}"
+    implementation "org.springframework.security:spring-security-core:${springSecurityVersion}"
 }
 
 test {

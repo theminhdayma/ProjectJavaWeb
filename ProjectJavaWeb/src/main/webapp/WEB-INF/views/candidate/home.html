@@ -1,10 +1,382 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternSHIP - Find Your Dream Internship</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'red-custom': '#c41e3a',
+                    },
+                    backgroundImage: {
+                        'hero-pattern': "url('data:image/svg+xml,<svg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"none\" fill-rule=\"evenodd\"><g fill=\"%23ffffff\" fill-opacity=\"0.1\"><circle cx=\"30\" cy=\"30\" r=\"2\"/></g></g></svg>')",
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-gray-50">
+<!-- Header -->
+<div th:insert="candidate/layoutCandidate/header :: HEADER"></div>
 
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-red-900 via-red-800 to-red-900 text-white overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 bg-hero-pattern opacity-20"></div>
+
+    <!-- Background Decorative Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-20 left-10 w-2 h-2 bg-white rounded-full opacity-60"></div>
+        <div class="absolute top-32 left-32 w-1 h-1 bg-white rounded-full opacity-40"></div>
+        <div class="absolute top-16 right-20 w-1.5 h-1.5 bg-white rounded-full opacity-50"></div>
+        <div class="absolute top-40 right-40 w-1 h-1 bg-white rounded-full opacity-30"></div>
+        <div class="absolute bottom-20 left-20 w-1 h-1 bg-white rounded-full opacity-40"></div>
+        <div class="absolute bottom-32 right-32 w-2 h-2 bg-white rounded-full opacity-30"></div>
+        <div class="absolute top-1/2 left-1/4 w-1 h-1 bg-white rounded-full opacity-50"></div>
+        <div class="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-white rounded-full opacity-40"></div>
+    </div>
+
+    <!-- City Skyline Silhouette -->
+    <div class="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1200 200" class="w-full h-32 text-red-900 opacity-30">
+            <path fill="currentColor" d="M0,200 L0,150 L50,150 L50,120 L100,120 L100,100 L150,100 L150,80 L200,80 L200,60 L250,60 L250,40 L300,40 L300,60 L350,60 L350,80 L400,80 L400,100 L450,100 L450,120 L500,120 L500,140 L550,140 L550,160 L600,160 L600,140 L650,140 L650,120 L700,120 L700,100 L750,100 L750,80 L800,80 L800,60 L850,60 L850,80 L900,80 L900,100 L950,100 L950,120 L1000,120 L1000,140 L1050,140 L1050,160 L1100,160 L1100,180 L1200,180 L1200,200 Z"/>
+        </svg>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4">
+                Intern<span class="text-red-300">SHIP</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-2 text-red-100">
+                Practical experience, breakthrough
+            </p>
+            <p class="text-xl md:text-2xl mb-12 text-red-100">
+                technology potential
+            </p>
+
+            <div class="max-w-2xl mx-auto">
+                <p class="text-lg mb-8 text-red-100">
+                    Join the internship program to learn from<br>
+                    industry experts, improve your practical skills, and<br>
+                    prepare for a bright future career.
+                </p>
+
+                <!-- Search Box -->
+                <div class="bg-white rounded-lg p-6 shadow-2xl">
+                    <p class="text-gray-700 text-lg font-medium mb-4">
+                        Find a <span class="text-red-custom font-bold">suitable internship position</span>
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1">
+                            <input type="text"
+                                   placeholder="Enter job title, company name, or skills..."
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-custom focus:border-transparent text-gray-700">
+                        </div>
+                        <button class="bg-red-custom hover:bg-red-700 text-white px-8 py-3 rounded-md font-medium transition-colors">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Best Positions Section -->
+<section class="py-16 bg-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">
+                The best <span class="text-red-custom">position</span> for you
+            </h2>
+        </div>
+
+        <!-- Job Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Job Card 1 -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-red-custom">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Company Name</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 6L9 7l4 4-4 4 1 1 5-5-5-5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Frontend</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ReactJS</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">
+                    Looking for a passionate Front End Developer to join our dynamic team...
+                </p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <span>📍 Hanoi</span>
+                    <span>💰 Negotiable</span>
+                    <span>⏰ 2 days ago</span>
+                </div>
+            </div>
+
+            <!-- Job Card 2 -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-blue-500">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Company Name</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 6L9 7l4 4-4 4 1 1 5-5-5-5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Frontend</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ReactJS</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">
+                    Looking for a passionate Front End Developer to join our dynamic team...
+                </p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <span>📍 Ho Chi Minh</span>
+                    <span>💰 Negotiable</span>
+                    <span>⏰ 3 days ago</span>
+                </div>
+            </div>
+
+            <!-- Job Card 3 -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-green-500">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Company Name</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 6L9 7l4 4-4 4 1 1 5-5-5-5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Frontend</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ReactJS</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">
+                    Looking for a passionate Front End Developer to join our dynamic team...
+                </p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <span>📍 Da Nang</span>
+                    <span>💰 Negotiable</span>
+                    <span>⏰ 1 week ago</span>
+                </div>
+            </div>
+
+            <!-- Job Card 4 -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-purple-500">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Company Name</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 6L9 7l4 4-4 4 1 1 5-5-5-5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Backend</span>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">Java</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">
+                    Looking for a passionate Front End Developer to join our dynamic team...
+                </p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <span>📍 Hanoi</span>
+                    <span>💰 Negotiable</span>
+                    <span>⏰ 2 weeks ago</span>
+                </div>
+            </div>
+
+            <!-- Job Card 5 -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-yellow-500">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Company Name</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 6L9 7l4 4-4 4 1 1 5-5-5-5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Frontend</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ReactJS</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">
+                    Looking for a passionate Front End Developer to join our dynamic team...
+                </p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <span>📍 Ho Chi Minh</span>
+                    <span>💰 Negotiable</span>
+                    <span>⏰ 3 weeks ago</span>
+                </div>
+            </div>
+
+            <!-- Job Card 6 -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-pink-500">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Company Name</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 6L9 7l4 4-4 4 1 1 5-5-5-5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Frontend</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ReactJS</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">
+                    Looking for a passionate Front End Developer to join our dynamic team...
+                </p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <span>📍 Can Tho</span>
+                    <span>💰 Negotiable</span>
+                    <span>⏰ 1 month ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Top Recruiters Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">
+                Top <span class="text-red-custom">recruiter</span>
+            </h2>
+        </div>
+
+        <!-- Company Logos Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+            <!-- Company Logo 1 -->
+            <div class="bg-gray-50 rounded-lg p-6 flex items-center justify-center hover:shadow-md transition-shadow">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <span class="text-red-600 font-bold text-lg">R</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Rikkei</p>
+                    <p class="text-xs text-gray-400">5 opening positions</p>
+                </div>
+            </div>
+
+            <!-- Company Logo 2 -->
+            <div class="bg-gray-50 rounded-lg p-6 flex items-center justify-center hover:shadow-md transition-shadow">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <span class="text-blue-600 font-bold text-lg">F</span>
+                    </div>
+                    <p class="text-sm text-gray-600">FPT</p>
+                    <p class="text-xs text-gray-400">3 opening positions</p>
+                </div>
+            </div>
+
+            <!-- Company Logo 3 -->
+            <div class="bg-gray-50 rounded-lg p-6 flex items-center justify-center hover:shadow-md transition-shadow">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <span class="text-green-600 font-bold text-lg">V</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Viettel</p>
+                    <p class="text-xs text-gray-400">7 opening positions</p>
+                </div>
+            </div>
+
+            <!-- Company Logo 4 -->
+            <div class="bg-gray-50 rounded-lg p-6 flex items-center justify-center hover:shadow-md transition-shadow">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <span class="text-purple-600 font-bold text-lg">T</span>
+                    </div>
+                    <p class="text-sm text-gray-600">TechCorp</p>
+                    <p class="text-xs text-gray-400">4 opening positions</p>
+                </div>
+            </div>
+
+            <!-- Company Logo 5 -->
+            <div class="bg-gray-50 rounded-lg p-6 flex items-center justify-center hover:shadow-md transition-shadow">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <span class="text-orange-600 font-bold text-lg">S</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Samsung</p>
+                    <p class="text-xs text-gray-400">6 opening positions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<div th:insert="candidate/layoutCandidate/footer :: FOOTER"></div>
 </body>
+
 </html>

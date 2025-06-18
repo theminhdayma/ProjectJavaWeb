@@ -60,4 +60,9 @@ public class AccountServiceImp implements AccountService {
     public Account findAccountByCandidateId(int candidateId) {
         return accountRep.findAccountByCandidateId(candidateId);
     }
+
+    @Override
+    public boolean changePassword(Account account, String newPassword) {
+        return accountRep.changePassword(account, newPassword);
+    }
 }

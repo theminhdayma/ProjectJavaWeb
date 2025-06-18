@@ -1,10 +1,272 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Personal Information - InternSHIP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-50">
+<!-- Header -->
+<div th:insert="candidate/layoutCandidate/header :: HEADER"></div>
 
+<!-- Main Content -->
+<main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">Edit personal information</h2>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Information Form -->
+        <form th:action="@{/candidate/profile/update-info}" th:object="${candidateDto}" method="post">
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Information</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Name - ĐÃ SỬA -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               th:field="*{name}"
+                               placeholder="Nhập tên của bạn"
+                               autocomplete="off"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                               th:classappend="${#fields.hasErrors('name')} ? 'border-red-500' : ''">
+                        <div th:if="${#fields.hasErrors('name')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{name}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Phone - CẢI THIỆN -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Phone <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel"
+                               th:field="*{phone}"
+                               placeholder="Nhập số điện thoại"
+                               autocomplete="off"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                               th:classappend="${#fields.hasErrors('phone')} ? 'border-red-500' : ''">
+                        <div th:if="${#fields.hasErrors('phone')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{phone}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Experience - CẢI THIỆN -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Experience <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number"
+                               th:field="*{experience}"
+                               placeholder="Số năm kinh nghiệm"
+                               min="0"
+                               autocomplete="off"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                               th:classappend="${#fields.hasErrors('experience')} ? 'border-red-500' : ''">
+                        <div th:if="${#fields.hasErrors('experience')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{experience}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Gender - CẢI THIỆN -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Gender <span class="text-red-500">*</span>
+                        </label>
+                        <select th:field="*{gender}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                th:classappend="${#fields.hasErrors('gender')} ? 'border-red-500' : ''">
+                            <option value="">Chọn giới tính</option>
+                            <option th:value="MALE" th:selected="${candidateDto.gender != null and candidateDto.gender.name() == 'MALE'}">Nam</option>
+                            <option th:value="FEMALE" th:selected="${candidateDto.gender != null and candidateDto.gender.name() == 'FEMALE'}">Nữ</option>
+                            <option th:value="OTHER" th:selected="${candidateDto.gender != null and candidateDto.gender.name() == 'OTHER'}">Khác</option>
+                        </select>
+                        <div th:if="${#fields.hasErrors('gender')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{gender}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date of Birth - CẢI THIỆN -->
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Date Of Birth <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date"
+                           th:field="*{dob}"
+                           class="w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           th:classappend="${#fields.hasErrors('dob')} ? 'border-red-500' : ''">
+                    <div th:if="${#fields.hasErrors('dob')}" class="text-red-500 text-sm mt-1">
+                        <span th:errors="*{dob}"></span>
+                    </div>
+                </div>
+
+                <!-- Descriptions - CẢI THIỆN -->
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Descriptions
+                    </label>
+                    <textarea rows="4"
+                              th:field="*{description}"
+                              placeholder="Mô tả về bản thân..."
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button type="submit" class="flex-1 bg-red-600 text-white py-3 px-6 rounded-md font-medium hover:bg-red-700 transition-colors">
+                    Update Information
+                </button>
+                <button type="button" id="changePasswordBtn" class="flex-1 bg-white border-2 border-red-600 text-red-600 py-3 px-6 rounded-md font-medium hover:bg-red-50 transition-colors">
+                    Change Password
+                </button>
+            </div>
+        </form>
+
+    </div>
+</main>
+
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+     th:classappend="${showPasswordModal} ? '' : 'hidden'">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="flex items-center justify-between pb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Change Password</h3>
+            <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Password Error Message -->
+        <div th:if="${passwordError}" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+            <span th:text="${passwordError}"></span>
+        </div>
+
+        <form th:action="@{/candidate/profile/change-password}" th:object="${changePasswordDto}" method="post">
+            <div class="mt-4">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Old Password <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" th:field="*{oldPassword}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                               th:classappend="${#fields.hasErrors('oldPassword')} ? 'border-red-500' : ''">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center toggle-password">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div th:if="${#fields.hasErrors('oldPassword')}" class="text-red-500 text-sm mt-1">
+                        <span th:errors="*{oldPassword}"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        New Password <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" th:field="*{newPassword}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                               th:classappend="${#fields.hasErrors('newPassword')} ? 'border-red-500' : ''">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center toggle-password">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div th:if="${#fields.hasErrors('newPassword')}" class="text-red-500 text-sm mt-1">
+                        <span th:errors="*{newPassword}"></span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Confirm New Password <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" th:field="*{confirmPassword}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                               th:classappend="${#fields.hasErrors('confirmPassword')} ? 'border-red-500' : ''">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center toggle-password">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div th:if="${#fields.hasErrors('confirmPassword')}" class="text-red-500 text-sm mt-1">
+                        <span th:errors="*{confirmPassword}"></span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4 pt-4">
+                    <button type="button" id="cancelBtn"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:insert="candidate/layoutCandidate/footer :: FOOTER"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('changePasswordModal');
+
+        // Mở modal
+        document.getElementById('changePasswordBtn').onclick = () => {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        };
+
+        // Đóng modal
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+
+        // Gán sự kiện đóng
+        document.getElementById('closeModalBtn').onclick = closeModal;
+        document.getElementById('cancelBtn').onclick = closeModal;
+        modal.onclick = (e) => e.target === modal && closeModal();
+        document.onkeydown = (e) => e.key === 'Escape' && closeModal();
+
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.onclick = (e) => {
+                e.preventDefault();
+                const input = button.parentElement.querySelector('input');
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+            };
+        });
+    });
+</script>
 </body>
 </html>

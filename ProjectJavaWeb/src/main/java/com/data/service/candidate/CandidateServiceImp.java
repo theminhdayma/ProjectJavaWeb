@@ -39,4 +39,9 @@ public class CandidateServiceImp implements CandidateService {
                                         Integer experience) {
         return candidateRep.countFilteredCandidates(search, gender, age, experience);
     }
+
+    @Override
+    public boolean updateCandidate(Candidate candidate) {
+        return candidateRep.updateCandidate(candidate);
+    }
 }

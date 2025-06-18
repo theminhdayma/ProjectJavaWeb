@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Positions - InternSHIP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'red-custom': '#c41e3a',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+<!-- Header -->
+<div th:insert="candidate/layoutCandidate/header :: HEADER"></div>
+
+<!-- Hero Section -->
+<section class="bg-red-custom text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold mb-4">Internship positions at Rikkei Education</h2>
+            <p class="text-red-100 mb-6">Competency and knowledge test before the candidate is considered for an interview</p>
+            <div class="text-sm text-red-100">
+                Found <span class="font-semibold">1</span> matching position
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Sidebar Filters -->
+        <aside class="lg:w-1/4">
+            <div class="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Advanced Filter</h3>
+
+                <!-- Work Location -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Work location</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">All locations</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Hanoi</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Ho Chi Minh City</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Da Nang</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Experience Level -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Experience level</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Internship</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Entry level</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Mid level</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Senior level</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Technology -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Technology</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Frontend</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Backend</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Full Stack</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">Mobile</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-red-custom focus:ring-red-custom">
+                            <span class="ml-2 text-sm text-gray-600">DevOps</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Apply Filters Button -->
+                <button class="w-full bg-red-custom hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm font-medium">
+                    Apply Filters
+                </button>
+            </div>
+        </aside>
+
+        <!-- Job Listings -->
+        <div class="lg:w-3/4">
+            <!-- Job Card 1 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-red-custom">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-red-custom" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Rikkei Education</p>
+                        </div>
+                    </div>
+                    <button class="bg-red-custom hover:bg-red-700 text-white px-6 py-2 rounded-md text-sm font-medium">
+                        Apply
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Frontend</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ReactJS</span>
+                </div>
+
+                <p class="text-gray-600 mb-4">
+                    We are looking for a passionate Front End Developer to join our dynamic team. You will be responsible for developing user-friendly web applications using modern technologies like React, HTML5, CSS3, and JavaScript. This is a great opportunity to work on exciting projects and grow your skills in a supportive environment.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500 mb-4">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Hanoi</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>2 months ago</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Negotiable</span>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <h4 class="font-medium text-gray-900 mb-2">Requirements:</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Strong knowledge of HTML5, CSS3, and JavaScript</li>
+                        <li>• Experience with React.js and modern frontend frameworks</li>
+                        <li>• Understanding of responsive design principles</li>
+                        <li>• Good communication skills and teamwork ability</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Job Card 2 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-blue-500">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Rikkei Education</p>
+                        </div>
+                    </div>
+                    <button class="bg-red-custom hover:bg-red-700 text-white px-6 py-2 rounded-md text-sm font-medium">
+                        Apply
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Frontend</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ReactJS</span>
+                </div>
+
+                <p class="text-gray-600 mb-4">
+                    Join our innovative team as a Front End Developer and help create amazing user experiences. You'll work with cutting-edge technologies and collaborate with talented designers and developers to build responsive, high-performance web applications.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500 mb-4">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Ho Chi Minh City</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>2 months ago</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Negotiable</span>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <h4 class="font-medium text-gray-900 mb-2">Requirements:</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Proficiency in JavaScript, HTML5, and CSS3</li>
+                        <li>• Experience with React.js and state management</li>
+                        <li>• Knowledge of version control systems (Git)</li>
+                        <li>• Passion for learning and staying updated with latest technologies</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Job Card 3 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-green-500">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Front End Developer</h3>
+                            <p class="text-sm text-gray-500">Rikkei Education</p>
+                        </div>
+                    </div>
+                    <button class="bg-red-custom hover:bg-red-700 text-white px-6 py-2 rounded-md text-sm font-medium">
+                        Apply
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Frontend</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ReactJS</span>
+                </div>
+
+                <p class="text-gray-600 mb-4">
+                    We're seeking a talented Front End Developer to contribute to our growing team. You'll have the opportunity to work on diverse projects, learn from experienced mentors, and develop your skills in a collaborative environment.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500 mb-4">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Da Nang</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>2 months ago</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Negotiable</span>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <h4 class="font-medium text-gray-900 mb-2">Requirements:</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Strong foundation in web development fundamentals</li>
+                        <li>• Experience with modern JavaScript frameworks</li>
+                        <li>• Understanding of UI/UX design principles</li>
+                        <li>• Excellent problem-solving and analytical skills</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="text-center mt-8">
+                <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-md font-medium">
+                    Load More Positions
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:insert="candidate/layoutCandidate/footer :: FOOTER"></div>
+</body>
+</html>
