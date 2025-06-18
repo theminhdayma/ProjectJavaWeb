@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -16,20 +15,95 @@
         }
     </script>
 </head>
-<body class="bg-gray-50">
-<!-- Header -->
-<header class="bg-white shadow-sm" th:fragment="HEADER">
+<body>
+<!-- Header Fragment -->
+<header th:fragment="HEADER" class="bg-white shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
             <div class="flex items-center">
                 <h1 class="text-2xl font-bold">
                     <span class="text-gray-900">Intern</span>
                     <span class="text-red-custom">SHIP</span>
                 </h1>
             </div>
-            <button class="bg-red-custom hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                Sign In / Sign Up
-            </button>
+
+            <!-- Khi đã đăng nhập -->
+            <div class="relative" th:if="${session.currentUser != null}">
+                <button id="userDropdown"
+                        type="button"
+                        class="flex items-center space-x-1 text-gray-700 hover:text-gray-900 focus:outline-none bg-white border border-gray-300 rounded-md px-3 py-2">
+                    <span class="font-medium text-gray-900">Hello,</span>
+                    <span class="font-medium text-red-custom"
+                          th:text="${session.currentUser.candidate.name}">Nam</span>
+                    <svg id="dropdownIcon" class="w-4 h-4 ml-1 transition-transform duration-200"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="dropdownMenu"
+                     class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden">
+                    <div class="py-1">
+                        <a th:href="@{/candidate/profile}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Information
+                        </a>
+                        <a th:href="@{/candidate/applications}"
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            My Application
+                        </a>
+                        <div class="border-t border-gray-100"></div>
+                        <a th:href="@{/logout}"
+                           class="block px-4 py-2 text-sm text-red-custom hover:bg-red-50">
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khi chưa đăng nhập -->
+            <div class="flex items-center space-x-4" th:unless="${session.currentUser != null}">
+                <a th:href="@{/login}"
+                   class="bg-red-custom hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    Đăng nhập
+                </a>
+                <a th:href="@{/register}"
+                   class="bg-red-custom hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    Đăng ký
+                </a>
+            </div>
         </div>
     </div>
+
+    <!-- Script xử lý dropdown -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('userDropdown');
+            const menu = document.getElementById('dropdownMenu');
+            const icon = document.getElementById('dropdownIcon');
+
+            if (btn && menu) {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    menu.classList.toggle('hidden');
+                    icon.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+                });
+
+                // Đóng menu khi click ra ngoài
+                document.addEventListener('click', function () {
+                    if (!menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                        icon.style.transform = 'rotate(0deg)';
+                    }
+                });
+
+                // Ngăn không đóng khi click bên trong menu
+                menu.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            }
+        });
+    </script>
 </header>
+</body>
+</html>

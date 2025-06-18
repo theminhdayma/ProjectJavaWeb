@@ -90,4 +90,60 @@ public class ApplicationRepImp implements ApplicationRep {
             }
         }
     }
+
+    @Override
+    public long countAll() {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            return (Long) session.createQuery("SELECT COUNT(a) FROM Application a").uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public long countByCandidateId(int candidateId) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            return (Long) session.createQuery("SELECT COUNT(a) FROM Application a WHERE a.candidate.id = :candidateId")
+                    .setParameter("candidateId", candidateId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public boolean update(Application application) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            session.beginTransaction();
+            session.update(application);
+            session.getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
 }

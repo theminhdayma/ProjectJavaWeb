@@ -32,4 +32,19 @@ public class ApplicationServiceImp implements ApplicationService {
     public boolean save(Application application) {
         return applicationRep.save(application);
     }
+
+    @Override
+    public long countAll() {
+        return applicationRep.countAll();
+    }
+
+    @Override
+    public long countByCandidateId(int candidateId) {
+        return applicationRep.countByCandidateId(candidateId);
+    }
+
+    @Override
+    public boolean update(Application application) {
+        return applicationRep.update(application);
+    }
 }

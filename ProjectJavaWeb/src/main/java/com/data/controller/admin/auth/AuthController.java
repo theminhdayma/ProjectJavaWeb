@@ -73,7 +73,7 @@ public class AuthController {
             if (Role.ADMIN.equals(account.getRole())) {
                 return "redirect:/admin/dashboard";
             } else if (Role.CANDIDATE.equals(account.getRole())) {
-                return "redirect:/candidate/home";
+                return "redirect:/candidate/profile";
             } else {
                 model.addAttribute("error", "Tài khoản không có quyền truy cập");
                 return "login";

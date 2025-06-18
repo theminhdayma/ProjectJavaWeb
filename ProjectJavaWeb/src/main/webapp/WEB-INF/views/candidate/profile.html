@@ -27,9 +27,8 @@
         <form th:action="@{/candidate/profile/update-info}" th:object="${candidateDto}" method="post">
             <div class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-900 mb-6">Information</h3>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Name - ĐÃ SỬA -->
+                    <!-- Name -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Name <span class="text-red-500">*</span>
@@ -44,8 +43,7 @@
                             <span th:errors="*{name}"></span>
                         </div>
                     </div>
-
-                    <!-- Phone - CẢI THIỆN -->
+                    <!-- Phone -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Phone <span class="text-red-500">*</span>
@@ -60,8 +58,7 @@
                             <span th:errors="*{phone}"></span>
                         </div>
                     </div>
-
-                    <!-- Experience - CẢI THIỆN -->
+                    <!-- Experience -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Experience <span class="text-red-500">*</span>
@@ -77,8 +74,7 @@
                             <span th:errors="*{experience}"></span>
                         </div>
                     </div>
-
-                    <!-- Gender - CẢI THIỆN -->
+                    <!-- Gender -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Gender <span class="text-red-500">*</span>
@@ -96,8 +92,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Date of Birth - CẢI THIỆN -->
+                <!-- Date of Birth -->
                 <div class="mt-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Date Of Birth <span class="text-red-500">*</span>
@@ -110,8 +105,7 @@
                         <span th:errors="*{dob}"></span>
                     </div>
                 </div>
-
-                <!-- Descriptions - CẢI THIỆN -->
+                <!-- Descriptions -->
                 <div class="mt-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Descriptions
@@ -122,7 +116,6 @@
                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
                 </div>
             </div>
-
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4">
                 <button type="submit" class="flex-1 bg-red-600 text-white py-3 px-6 rounded-md font-medium hover:bg-red-700 transition-colors">
@@ -133,7 +126,6 @@
                 </button>
             </div>
         </form>
-
     </div>
 </main>
 
@@ -149,12 +141,10 @@
                 </svg>
             </button>
         </div>
-
         <!-- Password Error Message -->
         <div th:if="${passwordError}" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
             <span th:text="${passwordError}"></span>
         </div>
-
         <form th:action="@{/candidate/profile/change-password}" th:object="${changePasswordDto}" method="post">
             <div class="mt-4">
                 <div class="mb-4">
@@ -176,7 +166,6 @@
                         <span th:errors="*{oldPassword}"></span>
                     </div>
                 </div>
-
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         New Password <span class="text-red-500">*</span>
@@ -196,7 +185,6 @@
                         <span th:errors="*{newPassword}"></span>
                     </div>
                 </div>
-
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Confirm New Password <span class="text-red-500">*</span>
@@ -216,7 +204,6 @@
                         <span th:errors="*{confirmPassword}"></span>
                     </div>
                 </div>
-
                 <div class="flex items-center justify-end space-x-4 pt-4">
                     <button type="button" id="cancelBtn"
                             class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
@@ -237,36 +224,70 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Lấy các phần tử modal và nút
         const modal = document.getElementById('changePasswordModal');
+        const openBtn = document.getElementById('changePasswordBtn');
+        const closeBtn = document.getElementById('closeModalBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
 
-        // Mở modal
-        document.getElementById('changePasswordBtn').onclick = () => {
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        };
+        // Hàm mở modal
+        function openModal() {
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
 
-        // Đóng modal
-        const closeModal = () => {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        };
+        // Hàm đóng modal
+        function closeModal() {
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
 
-        // Gán sự kiện đóng
-        document.getElementById('closeModalBtn').onclick = closeModal;
-        document.getElementById('cancelBtn').onclick = closeModal;
-        modal.onclick = (e) => e.target === modal && closeModal();
-        document.onkeydown = (e) => e.key === 'Escape' && closeModal();
+        // Gán sự kiện mở modal
+        if (openBtn) {
+            openBtn.addEventListener('click', openModal);
+        }
 
-        // Toggle password visibility
+        // Gán sự kiện đóng modal cho các nút
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', closeModal);
+        }
+
+        // Đóng modal khi click ra ngoài nội dung modal
+        if (modal) {
+            modal.addEventListener('mousedown', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Đóng modal khi nhấn phím Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        // Xử lý ẩn/hiện mật khẩu
         document.querySelectorAll('.toggle-password').forEach(button => {
-            button.onclick = (e) => {
+            button.addEventListener('click', function(e) {
                 e.preventDefault();
-                const input = button.parentElement.querySelector('input');
-                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-                input.setAttribute('type', type);
-            };
+                const input = button.parentElement.querySelector('input[type="password"], input[type="text"]');
+                if (input) {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                }
+            });
         });
     });
 </script>
+
 </body>
 </html>
