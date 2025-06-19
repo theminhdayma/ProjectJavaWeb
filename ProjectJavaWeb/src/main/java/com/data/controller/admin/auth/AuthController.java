@@ -10,6 +10,7 @@ import com.data.entity.enums.Status;
 import com.data.service.account.AccountService;
 import com.data.service.candidate.CandidateService;
 import com.data.service.technology.TechnologyService;
+import com.data.utils.Cookies;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -30,9 +33,23 @@ public class AuthController {
     private final CandidateService candidateService;
     private final TechnologyService technologyService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final Cookies cookieUtils;
 
     @GetMapping("/login")
-    public String showLoginForm(Model model) {
+    public String showLoginForm(Model model, HttpServletRequest request, HttpSession session) {
+        // Kiểm tra xem đã có cookie remember-me chưa
+        Account userFromCookie = cookieUtils.getUserFromCookie(request);
+        if (userFromCookie != null && session.getAttribute("currentUser") == null) {
+            // Tự động đăng nhập từ cookie
+            session.setAttribute("currentUser", userFromCookie);
+
+            if (Role.ADMIN.equals(userFromCookie.getRole())) {
+                return "redirect:/admin/dashboard";
+            } else if (Role.CANDIDATE.equals(userFromCookie.getRole())) {
+                return "redirect:/candidate/profile";
+            }
+        }
+
         if (!model.containsAttribute("loginDto")) {
             model.addAttribute("loginDto", new LoginDto());
         }
@@ -43,7 +60,9 @@ public class AuthController {
     public String processLogin(@ModelAttribute("loginDto") @Valid LoginDto loginDto,
                                BindingResult bindingResult,
                                Model model,
-                               HttpSession session) {
+                               HttpSession session,
+                               HttpServletResponse response,
+                               HttpServletRequest request) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Vui lòng điền đầy đủ thông tin");
@@ -68,7 +87,14 @@ public class AuthController {
                 return "login";
             }
 
+            // Lưu thông tin vào session
             session.setAttribute("currentUser", account);
+
+            // Kiểm tra checkbox "remember-me" và tạo cookie nếu được chọn
+            String rememberMe = request.getParameter("remember-me");
+            if ("on".equals(rememberMe)) {
+                Cookies.createUserCookie(response, account);
+            }
 
             if (Role.ADMIN.equals(account.getRole())) {
                 return "redirect:/admin/dashboard";
@@ -86,19 +112,23 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
+    public String logout(HttpSession session, HttpServletResponse response) {
+        // Xóa session
         session.invalidate();
-        return "redirect:/login";
+
+        // Xóa cookie remember-me
+        Cookies.clearUserCookie(response);
+
+        return "redirect:/login?logout=true";
     }
 
+    // Các method khác giữ nguyên...
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
-        // Nếu không có authDto từ redirect thì tạo mới
         if (!model.containsAttribute("authDto")) {
             model.addAttribute("authDto", new AuthDto());
         }
 
-        // Luôn thêm danh sách công nghệ
         List<Technology> technologies = technologyService.findAllTechnologies();
         model.addAttribute("technologies", technologies);
 
@@ -110,19 +140,11 @@ public class AuthController {
                                   BindingResult bindingResult,
                                   Model model) {
 
-        // Thêm lại danh sách công nghệ nếu có lỗi
         List<Technology> technologies = technologyService.findAllTechnologies();
         model.addAttribute("technologies", technologies);
 
-        // KHÔNG SỬ DỤNG: bindingResult.getAllErrors().clear();
-        // Thay vào đó, tạo BindingResult mới hoặc xóa lỗi theo cách khác
-
         // Kiểm tra email theo thứ tự ưu tiên
         if (authDto.getEmail() == null || authDto.getEmail().trim().isEmpty()) {
-            // Xóa lỗi cũ của email trước khi thêm lỗi mới
-            if (bindingResult.hasFieldErrors("email")) {
-                bindingResult.rejectValue("email", "", ""); // Clear old errors
-            }
             bindingResult.rejectValue("email", "email.required", "Email không được để trống");
             return "candidate/register";
         } else if (!isValidEmail(authDto.getEmail())) {
@@ -178,7 +200,6 @@ public class AuthController {
             return "candidate/register";
         }
 
-        // Phần xử lý tạo candidate và account giữ nguyên...
         try {
             Candidate candidate = new Candidate();
             candidate.setName(authDto.getName());
@@ -229,5 +250,4 @@ public class AuthController {
         String phoneRegex = "^(\\+84|0)\\d{9,10}$";
         return phone.matches(phoneRegex);
     }
-
 }

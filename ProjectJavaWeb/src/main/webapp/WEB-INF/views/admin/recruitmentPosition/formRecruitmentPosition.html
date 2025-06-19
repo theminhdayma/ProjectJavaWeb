@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Vị trí Tuyển dụng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex font-sans">
+
+<!-- Sidebar -->
+<div th:insert="admin/sidebar :: SIDEBAR"></div>
+
+<!-- Main Content -->
+<div class="flex-1 p-8">
+    <!-- Form Container -->
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg">
+        <!-- Header -->
+        <div class="flex justify-between items-center p-6 border-b border-gray-200">
+            <div class="flex items-center">
+                <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <h2 class="text-xl font-semibold text-gray-800">
+                    <span th:if="${recruitmentPositionDto.id == null}">Thêm Vị trí Tuyển dụng</span>
+                    <span th:if="${recruitmentPositionDto.id != null}">Sửa Vị trí Tuyển dụng</span>
+                </h2>
+            </div>
+            <a th:href="@{/admin/recruitment-position}" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Error Messages -->
+        <div th:if="${errorMessage}" class="mx-6 mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Form Content -->
+        <form th:action="${recruitmentPositionDto.id == null} ? @{/admin/recruitment-position/add} : @{/admin/recruitment-position/edit/{id}(id=${recruitmentPositionDto.id})}"
+              th:object="${recruitmentPositionDto}"
+              method="post"
+              class="p-6 space-y-6">
+
+            <!-- Name Field -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                    Tên vị trí <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       id="name"
+                       th:field="*{name}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="Nhập tên vị trí tuyển dụng">
+                <div th:if="${#fields.hasErrors('name')}" class="mt-1 text-sm text-red-600 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span th:errors="*{name}"></span>
+                </div>
+            </div>
+
+            <!-- Description Field -->
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Mô tả công việc
+                </label>
+                <textarea id="description"
+                          th:field="*{description}"
+                          rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Mô tả chi tiết về vị trí công việc..."></textarea>
+            </div>
+
+            <!-- Salary Range -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Min Salary -->
+                <div>
+                    <label for="minSalary" class="block text-sm font-medium text-gray-700 mb-2">
+                        Lương tối thiểu ($) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number"
+                           id="minSalary"
+                           th:field="*{minSalary}"
+                           step="0.01"
+                           min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="1000">
+                </div>
+
+                <!-- Max Salary -->
+                <div>
+                    <label for="maxSalary" class="block text-sm font-medium text-gray-700 mb-2">
+                        Lương tối đa ($) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number"
+                           id="maxSalary"
+                           th:field="*{maxSalary}"
+                           step="0.01"
+                           min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="3000">
+                </div>
+            </div>
+
+            <!-- Min Experience -->
+            <div>
+                <label for="minExperience" class="block text-sm font-medium text-gray-700 mb-2">
+                    Kinh nghiệm tối thiểu (năm) <span class="text-red-500">*</span>
+                </label>
+                <input type="number"
+                       id="minExperience"
+                       th:field="*{minExperience}"
+                       min="0"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="2">
+            </div>
+
+            <!-- Technology Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Công nghệ yêu cầu <span class="text-red-500">*</span>
+                </label>
+
+                <!-- Selected Technologies Display -->
+                <div id="selectedTechnologies" class="flex flex-wrap gap-2 mb-3 min-h-[2rem] p-2 border border-gray-200 rounded-md bg-gray-50">
+                    <!-- Selected technologies will be displayed here -->
+                </div>
+
+                <!-- Technology Selection Dropdown -->
+                <div class="relative">
+                    <button type="button"
+                            id="technologyDropdown"
+                            class="w-full px-3 py-2 text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white flex justify-between items-center">
+                        <span class="text-gray-500">Chọn công nghệ...</span>
+                        <svg class="w-4 h-4 transform transition-transform duration-200" id="dropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div id="technologyList" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-y-auto">
+                        <div th:each="tech : ${technologies}" class="technology-option px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                             th:data-id="${tech.id}"
+                             th:data-name="${tech.name}">
+                            <span th:text="${tech.name}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden inputs for selected technologies -->
+                <div id="technologyInputs"></div>
+            </div>
+
+            <!-- Date Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Created Date -->
+                <div>
+                    <label for="createdDate" class="block text-sm font-medium text-gray-700 mb-2">
+                        Ngày tạo <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date"
+                           id="createdDate"
+                           th:field="*{createdDate}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Expired Date -->
+                <div>
+                    <label for="expiredDate" class="block text-sm font-medium text-gray-700 mb-2">
+                        Ngày hết hạn <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date"
+                           id="expiredDate"
+                           th:field="*{expiredDate}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                    Trạng thái
+                </label>
+                <select id="status"
+                        th:field="*{status}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="ACTIVE">Hoạt động</option>
+                    <option value="INACTIVE">Không hoạt động</option>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                <a th:href="@{/admin/recruitment-position}"
+                   class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Hủy
+                </a>
+                <button type="submit"
+                        class="px-6 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                    </svg>
+                    Lưu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Technology selection functionality
+    let selectedTechnologies = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdown = document.getElementById('technologyDropdown');
+        const list = document.getElementById('technologyList');
+        const selectedContainer = document.getElementById('selectedTechnologies');
+        const inputsContainer = document.getElementById('technologyInputs');
+        const dropdownIcon = document.getElementById('dropdownIcon');
+
+        // Set default date values
+        const today = new Date().toISOString().split('T')[0];
+        if (!document.getElementById('createdDate').value) {
+            document.getElementById('createdDate').value = today;
+        }
+
+        // Load existing technologies if editing
+        const existingTechs = /*[[${recruitmentPositionDto.technologies}]]*/ [];
+        if (existingTechs && existingTechs.length > 0) {
+            existingTechs.forEach(tech => {
+                selectedTechnologies.push({id: tech.id.toString(), name: tech.name});
+            });
+            updateSelectedTechnologies();
+        }
+
+        // Toggle dropdown
+        dropdown.addEventListener('click', function() {
+            list.classList.toggle('hidden');
+            dropdownIcon.classList.toggle('rotate-180');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && !list.contains(e.target)) {
+                list.classList.add('hidden');
+                dropdownIcon.classList.remove('rotate-180');
+            }
+        });
+
+        // Handle technology selection
+        document.querySelectorAll('.technology-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+
+                if (!selectedTechnologies.find(tech => tech.id === id)) {
+                    selectedTechnologies.push({id, name});
+                    updateSelectedTechnologies();
+                }
+
+                list.classList.add('hidden');
+                dropdownIcon.classList.remove('rotate-180');
+            });
+        });
+
+        function updateSelectedTechnologies() {
+            // Update display
+            selectedContainer.innerHTML = '';
+            inputsContainer.innerHTML = '';
+
+            if (selectedTechnologies.length === 0) {
+                selectedContainer.innerHTML = '<span class="text-gray-500 text-sm">Chưa chọn công nghệ nào</span>';
+            } else {
+                selectedTechnologies.forEach((tech, index) => {
+                    // Create display tag
+                    const tag = document.createElement('span');
+                    tag.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 border border-blue-200';
+                    tag.innerHTML = `
+                    ${tech.name}
+                    <button type="button" class="ml-2 text-blue-600 hover:text-blue-800" onclick="removeTechnology('${tech.id}')">
+                        ×
+                    </button>
+                `;
+                    selectedContainer.appendChild(tag);
+
+                    // Create hidden input
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `technologies[${index}].id`;
+                    input.value = tech.id;
+                    inputsContainer.appendChild(input);
+                });
+            }
+        }
+
+        // Make removeTechnology function global
+        window.removeTechnology = function(id) {
+            selectedTechnologies = selectedTechnologies.filter(tech => tech.id !== id);
+            updateSelectedTechnologies();
+        };
+
+        // Initialize display
+        updateSelectedTechnologies();
+    });
+</script>
+
+</body>
+</html>

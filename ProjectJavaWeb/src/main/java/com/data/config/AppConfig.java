@@ -22,7 +22,8 @@ import javax.persistence.EntityManager;
 @ComponentScan(basePackages = {
         "com.data.controller",
         "com.data.service",
-        "com.data.repository"
+        "com.data.repository",
+        "com.data.utils",
 })
 public class AppConfig implements WebMvcConfigurer{
     @Bean

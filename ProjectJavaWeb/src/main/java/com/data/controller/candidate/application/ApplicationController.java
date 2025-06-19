@@ -5,13 +5,15 @@ import com.data.entity.Account;
 import com.data.entity.Application;
 import com.data.entity.enums.Progress;
 import com.data.service.application.ApplicationService;
+import com.data.utils.Cookies;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,22 +28,26 @@ import static com.data.utils.PaginationUtil.DEFAULT_SIZE;
 public class ApplicationController {
 
     private final ApplicationService applicationService;
+    private final Cookies cookieUtils;
 
     @GetMapping
     public String showApplications(
             @RequestParam(defaultValue = "" + DEFAULT_PAGE) int page,
             @RequestParam(defaultValue = "" + DEFAULT_SIZE) int size,
             Model model,
-            HttpSession session) {
+            HttpServletRequest request) {
 
-        Account currentUser = (Account) session.getAttribute("currentUser");
+        // Lấy thông tin user từ cookie thay vì session
+        Account currentUser = getCurrentUserFromCookie(request);
         if (currentUser == null || currentUser.getCandidate() == null) {
             return "redirect:/login";
         }
 
         // Lấy danh sách applications với phân trang
-        List<Application> applications = applicationService.findAllByCandidateId(currentUser.getCandidate().getId(), page, size);
-        long totalApplications = applicationService.countByCandidateId(currentUser.getCandidate().getId());
+        List<Application> applications = applicationService.findAllByCandidateId(
+                currentUser.getCandidate().getId(), page, size);
+        long totalApplications = applicationService.countByCandidateId(
+                currentUser.getCandidate().getId());
 
         // Convert to DTO
         List<ApplicationDto> applicationDtos = applications.stream()
@@ -57,6 +63,7 @@ public class ApplicationController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("pageSize", size);
         model.addAttribute("totalApplications", totalApplications);
+        model.addAttribute("currentUser", currentUser); // Thêm user info cho view
 
         // Tính toán các trang hiển thị
         int startPage = Math.max(0, page - 2);
@@ -67,22 +74,24 @@ public class ApplicationController {
         return "candidate/application";
     }
 
-    // THÊM METHOD HỦY ĐƠN
     @PostMapping("/cancel/{id}")
     public String cancelApplication(@PathVariable int id,
                                     @RequestParam String cancelReason,
-                                    HttpSession session,
+                                    HttpServletRequest request,
                                     RedirectAttributes redirectAttributes) {
 
-        Account currentUser = (Account) session.getAttribute("currentUser");
+        // Lấy thông tin user từ cookie
+        Account currentUser = getCurrentUserFromCookie(request);
         if (currentUser == null || currentUser.getCandidate() == null) {
             return "redirect:/login";
         }
 
         try {
             Application application = applicationService.findById(id);
-            if (application == null || application.getCandidate().getId() != currentUser.getCandidate().getId()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn ứng tuyển hoặc bạn không có quyền hủy đơn này");
+            if (application == null ||
+                    application.getCandidate().getId() != currentUser.getCandidate().getId()) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Không tìm thấy đơn ứng tuyển hoặc bạn không có quyền hủy đơn này");
                 return "redirect:/candidate/applications";
             }
 
@@ -92,32 +101,36 @@ public class ApplicationController {
             application.setDestroyAt(LocalDateTime.now());
 
             applicationService.update(application);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đơn ứng tuyển thành công");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Đã hủy đơn ứng tuyển thành công");
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi hủy đơn ứng tuyển: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Có lỗi xảy ra khi hủy đơn ứng tuyển: " + e.getMessage());
         }
 
         return "redirect:/candidate/applications";
     }
 
-    // THÊM METHOD ĐỔI LỊCH PHỎNG VẤN
     @PostMapping("/reschedule/{id}")
     public String rescheduleApplication(@PathVariable int id,
                                         @RequestParam String rescheduleReason,
                                         @RequestParam String requestedDateTime,
-                                        HttpSession session,
+                                        HttpServletRequest request,
                                         RedirectAttributes redirectAttributes) {
 
-        Account currentUser = (Account) session.getAttribute("currentUser");
+        // Lấy thông tin user từ cookie
+        Account currentUser = getCurrentUserFromCookie(request);
         if (currentUser == null || currentUser.getCandidate() == null) {
             return "redirect:/login";
         }
 
         try {
             Application application = applicationService.findById(id);
-            if (application == null || application.getCandidate().getId() != currentUser.getCandidate().getId()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn ứng tuyển hoặc bạn không có quyền yêu cầu đổi lịch");
+            if (application == null ||
+                    application.getCandidate().getId() != currentUser.getCandidate().getId()) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Không tìm thấy đơn ứng tuyển hoặc bạn không có quyền yêu cầu đổi lịch");
                 return "redirect:/candidate/applications";
             }
 
@@ -130,30 +143,34 @@ public class ApplicationController {
             application.setConfirmInterviewDate(requestedTime);
 
             applicationService.update(application);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã gửi yêu cầu đổi lịch phỏng vấn thành công");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Đã gửi yêu cầu đổi lịch phỏng vấn thành công");
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi gửi yêu cầu đổi lịch: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Có lỗi xảy ra khi gửi yêu cầu đổi lịch: " + e.getMessage());
         }
 
         return "redirect:/candidate/applications";
     }
 
-    // THÊM METHOD XÁC NHẬN PHỎNG VẤN
     @PostMapping("/confirm/{id}")
     public String confirmInterview(@PathVariable int id,
-                                   HttpSession session,
+                                   HttpServletRequest request,
                                    RedirectAttributes redirectAttributes) {
 
-        Account currentUser = (Account) session.getAttribute("currentUser");
+        // Lấy thông tin user từ cookie
+        Account currentUser = getCurrentUserFromCookie(request);
         if (currentUser == null || currentUser.getCandidate() == null) {
             return "redirect:/login";
         }
 
         try {
             Application application = applicationService.findById(id);
-            if (application == null || application.getCandidate().getId() != currentUser.getCandidate().getId()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn ứng tuyển");
+            if (application == null ||
+                    application.getCandidate().getId() != currentUser.getCandidate().getId()) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Không tìm thấy đơn ứng tuyển");
                 return "redirect:/candidate/applications";
             }
 
@@ -163,34 +180,59 @@ public class ApplicationController {
             application.setConfirmInterviewDateReason("Đã xác nhận tham gia phỏng vấn");
 
             applicationService.update(application);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận tham gia phỏng vấn thành công");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Đã xác nhận tham gia phỏng vấn thành công");
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Có lỗi xảy ra: " + e.getMessage());
         }
 
         return "redirect:/candidate/applications";
     }
 
-
-    // Các method khác giữ nguyên...
     @GetMapping("/detail")
-    public String showApplicationDetail(@RequestParam int id, Model model, HttpSession session) {
-        Account currentUser = (Account) session.getAttribute("currentUser");
+    public String showApplicationDetail(@RequestParam int id,
+                                        Model model,
+                                        HttpServletRequest request) {
+        // Lấy thông tin user từ cookie
+        Account currentUser = getCurrentUserFromCookie(request);
         if (currentUser == null || currentUser.getCandidate() == null) {
             return "redirect:/login";
         }
 
         Application application = applicationService.findById(id);
-        if (application == null || application.getCandidate().getId() != currentUser.getCandidate().getId()) {
-            model.addAttribute("error", "Application not found or you do not have permission to view it.");
+        if (application == null ||
+                application.getCandidate().getId() != currentUser.getCandidate().getId()) {
+            model.addAttribute("error",
+                    "Application not found or you do not have permission to view it.");
             return "error";
         }
 
         ApplicationDto applicationDto = convertToDto(application);
         model.addAttribute("application", applicationDto);
+        model.addAttribute("currentUser", currentUser);
 
         return "candidate/application_detail";
+    }
+
+    // Method helper để lấy user từ cookie
+    private Account getCurrentUserFromCookie(HttpServletRequest request) {
+        try {
+            return cookieUtils.getUserFromCookie(request);
+        } catch (Exception e) {
+            // Log lỗi nếu cần
+            System.err.println("Error getting user from cookie: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // Method helper để validate user permissions
+    private boolean hasPermissionToAccessApplication(Account user, Application application) {
+        return user != null &&
+                user.getCandidate() != null &&
+                application != null &&
+                application.getCandidate().getId() == user.getCandidate().getId();
     }
 
     private ApplicationDto convertToDto(Application application) {

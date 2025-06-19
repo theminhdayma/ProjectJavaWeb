@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'red-custom': '#c41e3a',
-                    }
-                }
-            }
+    <style>
+        .text-red-custom {
+            color: #dc2626;
         }
-    </script>
+        .bg-red-custom {
+            background-color: #dc2626;
+        }
+        .hover\:bg-red-700:hover {
+            background-color: #b91c1c;
+        }
+        .hover\:bg-red-50:hover {
+            background-color: #fef2f2;
+        }
+    </style>
 </head>
 <body>
 <!-- Header Fragment -->
@@ -22,20 +25,22 @@
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex items-center">
-                <h1 class="text-2xl font-bold">
+                <a th:href="@{/candidate/home}" class="text-2xl font-bold">
                     <span class="text-gray-900">Intern</span>
                     <span class="text-red-custom">SHIP</span>
-                </h1>
+                </a>
             </div>
 
-            <!-- Khi đã đăng nhập -->
-            <div class="relative" th:if="${session.currentUser != null}">
+            <!-- Khi đã đăng nhập (kiểm tra từ cookie) -->
+            <div class="relative" th:if="${currentUser != null}">
                 <button id="userDropdown"
                         type="button"
                         class="flex items-center space-x-1 text-gray-700 hover:text-gray-900 focus:outline-none bg-white border border-gray-300 rounded-md px-3 py-2">
                     <span class="font-medium text-gray-900">Hello,</span>
-                    <span class="font-medium text-red-custom"
-                          th:text="${session.currentUser.candidate.name}">Nam</span>
+                    <span class="font-medium text-red-600"
+                          th:text="${currentUser.candidate != null ? currentUser.candidate.name : currentUser.email}">
+                        User
+                    </span>
                     <svg id="dropdownIcon" class="w-4 h-4 ml-1 transition-transform duration-200"
                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -45,42 +50,67 @@
                 <div id="dropdownMenu"
                      class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 hidden">
                     <div class="py-1">
-                        <a th:href="@{/candidate/profile}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Information
-                        </a>
-                        <a th:href="@{/candidate/applications}"
-                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            My Application
-                        </a>
+
+                        <!-- Menu items cho Candidate -->
+                        <div th:if="${currentUser.role.toString() == 'CANDIDATE'}">
+                            <a th:href="@{/candidate/profile}"
+                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i>Infomation
+                            </a>
+                            <a th:href="@{/candidate/applications}"
+                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-file-alt mr-2"></i>My Applications
+                            </a>
+                        </div>
+
+                        <!-- Menu items cho Admin -->
+                        <div th:if="${currentUser.role.toString() == 'ADMIN'}">
+                            <a th:href="@{/admin/dashboard}"
+                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                            </a>
+                            <a th:href="@{/admin/candidates}"
+                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-users mr-2"></i>Quản lý ứng viên
+                            </a>
+                            <a th:href="@{/admin/jobs}"
+                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-briefcase mr-2"></i>Quản lý công việc
+                            </a>
+                        </div>
+
                         <div class="border-t border-gray-100"></div>
                         <a th:href="@{/logout}"
                            class="block px-4 py-2 text-sm text-red-custom hover:bg-red-50">
-                            Logout
+                            <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
                         </a>
                     </div>
                 </div>
             </div>
 
             <!-- Khi chưa đăng nhập -->
-            <div class="flex items-center space-x-4" th:unless="${session.currentUser != null}">
+            <div class="flex items-center space-x-4" th:unless="${currentUser != null}">
                 <a th:href="@{/login}"
-                   class="bg-red-custom hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                   class="bg-red-custom hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                     Đăng nhập
                 </a>
                 <a th:href="@{/register}"
-                   class="bg-red-custom hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                   class="border border-red-custom text-red-custom hover:bg-red-custom hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                     Đăng ký
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Script xử lý dropdown -->
+    <!-- Script xử lý dropdown và cookie check -->
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
             const btn = document.getElementById('userDropdown');
             const menu = document.getElementById('dropdownMenu');
             const icon = document.getElementById('dropdownIcon');
+
+            // Kiểm tra cookie khi trang load
+            checkCookieStatus();
 
             if (btn && menu) {
                 btn.addEventListener('click', function (e) {
@@ -103,6 +133,49 @@
                 });
             }
         });
+
+        // Function kiểm tra trạng thái cookie
+        function checkCookieStatus() {
+            const cookies = document.cookie.split(';');
+            let hasUserCookie = false;
+
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'currentUser' && value) {
+                    hasUserCookie = true;
+                    break;
+                }
+            }
+
+            // Debug log
+            console.log('Cookie status:', hasUserCookie ? 'Found' : 'Not found');
+
+            // Hiển thị thông báo nếu cần
+            if (hasUserCookie) {
+                console.log('User authenticated via cookie');
+            }
+        }
+
+        // Function để refresh user info từ cookie
+        function refreshUserFromCookie() {
+            fetch('/api/user/current', {
+                method: 'GET',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.authenticated) {
+                        // Cập nhật UI nếu cần
+                        console.log('User info refreshed from cookie');
+                    } else {
+                        // Redirect to login nếu cookie không hợp lệ
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking authentication:', error);
+                });
+        }
     </script>
 </header>
 </body>

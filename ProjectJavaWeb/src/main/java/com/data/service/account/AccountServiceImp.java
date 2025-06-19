@@ -12,6 +12,11 @@ public class AccountServiceImp implements AccountService {
     private final AccountRep accountRep;
 
     @Override
+    public Account findById(int id) {
+        return accountRep.findById(id);
+    }
+
+    @Override
     public Account findByEmail(String email) {
         return accountRep.findByEmail(email);
     }

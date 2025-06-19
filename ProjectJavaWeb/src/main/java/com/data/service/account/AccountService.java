@@ -4,6 +4,7 @@ package com.data.service.account;
 import com.data.entity.Account;
 
 public interface AccountService {
+    Account findById(int id);
     Account findByEmail(String email);
     boolean validatePassword(String rawPassword, String storedPassword);
     void updateLoginStatus(String email, boolean status);

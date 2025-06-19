@@ -17,6 +17,22 @@ public class AccountRepImp implements AccountRep {
 
 
     @Override
+    public Account findById(int id) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            return session.get(Account.class, id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
     public Account findByEmail(String email) {
         Session session = null;
         try {

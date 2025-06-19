@@ -13,12 +13,17 @@
         <p class="text-gray-600 mt-1">Vui lòng đăng nhập</p>
     </div>
 
-    <!-- Hiển thị thông báo thành công -->
+    <!-- Hiển thị thông báo đăng xuất thành công -->
     <div th:if="${param.logout}" class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
         <p>Đăng xuất thành công!</p>
     </div>
 
     <!-- Hiển thị thông báo đăng ký thành công -->
+    <div th:if="${param.success}" class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+        <p>Đăng ký thành công! Vui lòng đăng nhập.</p>
+    </div>
+
+    <!-- Hiển thị thông báo từ successMessage -->
     <div th:if="${successMessage}" class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
         <p th:text="${successMessage}"></p>
     </div>
@@ -40,12 +45,13 @@
 
         <div class="flex justify-between items-center text-sm text-gray-700">
             <label class="flex items-center">
-                <input type="checkbox" name="remember-me" class="mr-2 text-red-600" />
-                Ghi nhớ đăng nhập
+                <input type="checkbox" name="remember-me" value="on" class="mr-2 text-red-600 rounded focus:ring-red-500" />
+                <span class="text-sm">Remember-me</span>
             </label>
-            <span>Chưa có tài khoản?
-                <a th:href="@{/register}" class="text-red-700 font-semibold hover:underline ml-1">Đăng ký ngay!</a>
-            </span>
+            <div class="text-right">
+                <span class="text-xs">Chưa có tài khoản?</span>
+                <a th:href="@{/register}" class="text-red-700 font-semibold hover:underline ml-1 text-xs">Đăng ký ngay!</a>
+            </div>
         </div>
 
         <!-- Hiển thị lỗi chung -->

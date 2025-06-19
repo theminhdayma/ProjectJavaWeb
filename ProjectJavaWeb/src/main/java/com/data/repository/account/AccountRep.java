@@ -3,6 +3,7 @@ package com.data.repository.account;
 import com.data.entity.Account;
 
 public interface AccountRep {
+    Account findById(int id);
     Account findByEmail(String email);
     boolean validatePassword(String rawPassword, String storedPassword);
     void updateLoginStatus(String email, boolean status);
