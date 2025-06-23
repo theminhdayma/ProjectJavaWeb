@@ -6,6 +6,9 @@ import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -16,6 +19,7 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
 import javax.persistence.EntityManager;
+import java.util.Properties;
 
 @Configuration
 @EnableWebMvc
@@ -82,12 +86,37 @@ public class AppConfig implements WebMvcConfigurer{
     @Bean
     public CommonsMultipartResolver multipartResolver(){
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setMaxUploadSize(-1);
+        resolver.setMaxUploadSize(10 * 1024 * 1024); // 10MB
         return resolver;
     }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JavaMailSender getJavaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("smtp.gmail.com");
+        mailSender.setPort(587);
+        mailSender.setUsername("your-email@gmail.com"); // Thay bằng email của bạn
+        mailSender.setPassword("your-app-password"); // Thay bằng app password
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.debug", "false");
+
+        return mailSender;
+    }
+
+    @Bean
+    public SimpleMailMessage templateMessage() {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("your-email@gmail.com");
+        message.setSubject("Đặt lại mật khẩu");
+        return message;
     }
 }

@@ -37,16 +37,17 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLoginForm(Model model, HttpServletRequest request, HttpSession session) {
-        // Kiểm tra xem đã có cookie remember-me chưa
+
+        // Kiểm tra cookie nếu không có session
         Account userFromCookie = cookieUtils.getUserFromCookie(request);
-        if (userFromCookie != null && session.getAttribute("currentUser") == null) {
-            // Tự động đăng nhập từ cookie
+        if (userFromCookie != null) {
+            // Lưu vào session để tránh check cookie liên tục
             session.setAttribute("currentUser", userFromCookie);
 
             if (Role.ADMIN.equals(userFromCookie.getRole())) {
                 return "redirect:/admin/dashboard";
             } else if (Role.CANDIDATE.equals(userFromCookie.getRole())) {
-                return "redirect:/candidate/profile";
+                return "redirect:/candidate/home";
             }
         }
 
@@ -55,6 +56,7 @@ public class AuthController {
         }
         return "login";
     }
+
 
     @PostMapping("/login")
     public String processLogin(@ModelAttribute("loginDto") @Valid LoginDto loginDto,
@@ -90,16 +92,12 @@ public class AuthController {
             // Lưu thông tin vào session
             session.setAttribute("currentUser", account);
 
-            // Kiểm tra checkbox "remember-me" và tạo cookie nếu được chọn
-            String rememberMe = request.getParameter("remember-me");
-            if ("on".equals(rememberMe)) {
-                Cookies.createUserCookie(response, account);
-            }
+            cookieUtils.createUserCookie(response, account);
 
             if (Role.ADMIN.equals(account.getRole())) {
-                return "redirect:/admin/dashboard";
+                return "redirect:/admin/candidate";
             } else if (Role.CANDIDATE.equals(account.getRole())) {
-                return "redirect:/candidate/profile";
+                return "redirect:/candidate/home";
             } else {
                 model.addAttribute("error", "Tài khoản không có quyền truy cập");
                 return "login";
@@ -117,12 +115,11 @@ public class AuthController {
         session.invalidate();
 
         // Xóa cookie remember-me
-        Cookies.clearUserCookie(response);
+        cookieUtils.clearUserCookie(response);
 
-        return "redirect:/login?logout=true";
+        return "redirect:/login";
     }
 
-    // Các method khác giữ nguyên...
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         if (!model.containsAttribute("authDto")) {

@@ -1,9 +1,12 @@
 package com.data.controller.admin.technology;
 
 import com.data.dto.TechnologyDto;
+import com.data.entity.Account;
 import com.data.entity.Technology;
+import com.data.entity.enums.Role;
 import com.data.entity.enums.Status;
 import com.data.service.technology.TechnologyService;
+import com.data.utils.Cookies;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +14,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -22,13 +27,20 @@ import static com.data.utils.PaginationUtil.*;
 public class TechnologyController {
 
     private final TechnologyService technologyService;
+    private final Cookies cookieUtils;
 
     @GetMapping
     public String listTechnologies(
             @RequestParam(defaultValue = "" + DEFAULT_PAGE) int page,
             @RequestParam(defaultValue = "" + DEFAULT_SIZE) int size,
             @RequestParam(required = false) String search,
+            HttpServletRequest request,
             Model model) {
+
+        Account currentUser = getCurrentUser(request);
+        if (currentUser == null || !Role.ADMIN.equals(currentUser.getRole())) {
+            return "redirect:/login";
+        }
 
         List<Technology> technologies;
         long totalItems;
@@ -46,15 +58,23 @@ public class TechnologyController {
         model.addAttribute("technologies", technologies);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
+        model.addAttribute("currentUser", currentUser);
 
         return "admin/technology/technologyManager";
     }
 
     @GetMapping("/add")
-    public String showAddForm(Model model) {
+    public String showAddForm(Model model,
+                              HttpServletRequest request) {
+        Account currentUser = getCurrentUser(request);
+        if (currentUser == null || !Role.ADMIN.equals(currentUser.getRole())) {
+            return "redirect:/login";
+        }
+
         model.addAttribute("technologyDto", new TechnologyDto());
         model.addAttribute("statuses", Status.values());
         model.addAttribute("isEdit", false);
+        model.addAttribute("currentUser", currentUser);
         return "admin/technology/formTechnology";
     }
 
@@ -96,7 +116,13 @@ public class TechnologyController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable int id, Model model, RedirectAttributes redirectAttributes) {
+    public String showEditForm(@PathVariable int id, Model model,
+                                HttpServletRequest request,
+                               RedirectAttributes redirectAttributes) {
+        Account currentUser = getCurrentUser(request);
+        if (currentUser == null || !Role.ADMIN.equals(currentUser.getRole())) {
+            return "redirect:/login";
+        }
         Technology technology = technologyService.findTechnologyById(id);
         if (technology == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy công nghệ!");
@@ -108,6 +134,7 @@ public class TechnologyController {
         model.addAttribute("technologyDto", technologyDto);
         model.addAttribute("statuses", Status.values());
         model.addAttribute("isEdit", true);
+        model.addAttribute("currentUser", currentUser);
         return "admin/technology/formTechnology";
     }
 
@@ -220,5 +247,25 @@ public class TechnologyController {
         technology.setCandidates(dto.getCandidates());
         technology.setPositions(dto.getPositions());
         return technology;
+    }
+
+    protected Account getCurrentUser(HttpServletRequest request) {
+        // Ưu tiên session trước
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Account userFromSession = (Account) session.getAttribute("currentUser");
+            if (userFromSession != null) {
+                return userFromSession;
+            }
+        }
+
+        // Fallback sang cookie
+        Account userFromCookie = cookieUtils.getUserFromCookie(request);
+        if (userFromCookie != null) {
+            // Lưu vào session cho lần sau
+            request.getSession().setAttribute("currentUser", userFromCookie);
+        }
+
+        return userFromCookie;
     }
 }

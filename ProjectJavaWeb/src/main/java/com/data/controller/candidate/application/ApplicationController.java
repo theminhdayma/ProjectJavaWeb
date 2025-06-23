@@ -4,6 +4,7 @@ import com.data.dto.ApplicationDto;
 import com.data.entity.Account;
 import com.data.entity.Application;
 import com.data.entity.enums.Progress;
+import com.data.entity.enums.Role;
 import com.data.service.application.ApplicationService;
 import com.data.utils.Cookies;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -38,8 +39,8 @@ public class ApplicationController {
             HttpServletRequest request) {
 
         // Lấy thông tin user từ cookie thay vì session
-        Account currentUser = getCurrentUserFromCookie(request);
-        if (currentUser == null || currentUser.getCandidate() == null) {
+        Account currentUser = getCurrentUser(request);
+        if (currentUser == null || !Role.CANDIDATE.equals(currentUser.getRole())) {
             return "redirect:/login";
         }
 
@@ -73,6 +74,8 @@ public class ApplicationController {
 
         return "candidate/application";
     }
+
+
 
     @PostMapping("/cancel/{id}")
     public String cancelApplication(@PathVariable int id,
@@ -191,8 +194,8 @@ public class ApplicationController {
         return "redirect:/candidate/applications";
     }
 
-    @GetMapping("/detail")
-    public String showApplicationDetail(@RequestParam int id,
+    @GetMapping("/detail/{id}")
+    public String showApplicationDetail(@PathVariable int id,
                                         Model model,
                                         HttpServletRequest request) {
         // Lấy thông tin user từ cookie
@@ -204,16 +207,16 @@ public class ApplicationController {
         Application application = applicationService.findById(id);
         if (application == null ||
                 application.getCandidate().getId() != currentUser.getCandidate().getId()) {
-            model.addAttribute("error",
-                    "Application not found or you do not have permission to view it.");
-            return "error";
+            model.addAttribute("errorMessage",
+                    "Không tìm thấy đơn ứng tuyển hoặc bạn không có quyền xem");
+            return "redirect:/candidate/applications";
         }
 
         ApplicationDto applicationDto = convertToDto(application);
         model.addAttribute("application", applicationDto);
         model.addAttribute("currentUser", currentUser);
 
-        return "candidate/application_detail";
+        return "candidate/applicationDetail";
     }
 
     // Method helper để lấy user từ cookie
@@ -225,14 +228,6 @@ public class ApplicationController {
             System.err.println("Error getting user from cookie: " + e.getMessage());
             return null;
         }
-    }
-
-    // Method helper để validate user permissions
-    private boolean hasPermissionToAccessApplication(Account user, Application application) {
-        return user != null &&
-                user.getCandidate() != null &&
-                application != null &&
-                application.getCandidate().getId() == user.getCandidate().getId();
     }
 
     private ApplicationDto convertToDto(Application application) {
@@ -285,5 +280,25 @@ public class ApplicationController {
         dto.setDepartmentName(application.getRecruitmentPosition().getDescription());
 
         return dto;
+    }
+
+    protected Account getCurrentUser(HttpServletRequest request) {
+        // Ưu tiên session trước
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Account userFromSession = (Account) session.getAttribute("currentUser");
+            if (userFromSession != null) {
+                return userFromSession;
+            }
+        }
+
+        // Fallback sang cookie
+        Account userFromCookie = cookieUtils.getUserFromCookie(request);
+        if (userFromCookie != null) {
+            // Lưu vào session cho lần sau
+            request.getSession().setAttribute("currentUser", userFromCookie);
+        }
+
+        return userFromCookie;
     }
 }

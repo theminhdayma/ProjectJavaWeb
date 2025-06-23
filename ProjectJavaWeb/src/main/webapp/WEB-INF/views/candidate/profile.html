@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Personal Information - InternSHIP</title>
+    <title>Profile - InternSHIP</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'red-custom': '#B91C1C',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-50">
 <!-- Header -->
@@ -13,7 +24,7 @@
 <!-- Main Content -->
 <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <div class="bg-white rounded-lg shadow-sm p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-8">Edit personal information</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">Thông tin cá nhân</h2>
 
         <!-- Success/Error Messages -->
         <div th:if="${successMessage}" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
@@ -23,197 +34,234 @@
             <span th:text="${errorMessage}"></span>
         </div>
 
-        <!-- Information Form -->
-        <form th:action="@{/candidate/profile/update-info}" th:object="${candidateDto}" method="post">
-            <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-6">Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Name -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Name <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text"
-                               th:field="*{name}"
-                               placeholder="Nhập tên của bạn"
-                               autocomplete="off"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                               th:classappend="${#fields.hasErrors('name')} ? 'border-red-500' : ''">
-                        <div th:if="${#fields.hasErrors('name')}" class="text-red-500 text-sm mt-1">
-                            <span th:errors="*{name}"></span>
-                        </div>
-                    </div>
-                    <!-- Phone -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Phone <span class="text-red-500">*</span>
-                        </label>
-                        <input type="tel"
-                               th:field="*{phone}"
-                               placeholder="Nhập số điện thoại"
-                               autocomplete="off"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                               th:classappend="${#fields.hasErrors('phone')} ? 'border-red-500' : ''">
-                        <div th:if="${#fields.hasErrors('phone')}" class="text-red-500 text-sm mt-1">
-                            <span th:errors="*{phone}"></span>
-                        </div>
-                    </div>
-                    <!-- Experience -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Experience <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number"
-                               th:field="*{experience}"
-                               placeholder="Số năm kinh nghiệm"
-                               min="0"
-                               autocomplete="off"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                               th:classappend="${#fields.hasErrors('experience')} ? 'border-red-500' : ''">
-                        <div th:if="${#fields.hasErrors('experience')}" class="text-red-500 text-sm mt-1">
-                            <span th:errors="*{experience}"></span>
-                        </div>
-                    </div>
-                    <!-- Gender -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Gender <span class="text-red-500">*</span>
-                        </label>
-                        <select th:field="*{gender}"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                th:classappend="${#fields.hasErrors('gender')} ? 'border-red-500' : ''">
-                            <option value="">Chọn giới tính</option>
-                            <option th:value="MALE" th:selected="${candidateDto.gender != null and candidateDto.gender.name() == 'MALE'}">Nam</option>
-                            <option th:value="FEMALE" th:selected="${candidateDto.gender != null and candidateDto.gender.name() == 'FEMALE'}">Nữ</option>
-                            <option th:value="OTHER" th:selected="${candidateDto.gender != null and candidateDto.gender.name() == 'OTHER'}">Khác</option>
-                        </select>
-                        <div th:if="${#fields.hasErrors('gender')}" class="text-red-500 text-sm mt-1">
-                            <span th:errors="*{gender}"></span>
-                        </div>
+        <!-- Profile Information Display -->
+        <div class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tên</label>
+                    <div class="p-3 bg-gray-50 rounded-md" th:text="${candidateDto.name}"></div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <div class="p-3 bg-gray-50 rounded-md" th:text="${currentUser.email}"></div>
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
+                    <div class="p-3 bg-gray-50 rounded-md" th:text="${candidateDto.phone}"></div>
+                </div>
+
+                <!-- Experience -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kinh nghiệm</label>
+                    <div class="p-3 bg-gray-50 rounded-md" th:text="${candidateDto.experience} + ' năm'"></div>
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Giới tính</label>
+                    <div class="p-3 bg-gray-50 rounded-md">
+                        <span th:if="${candidateDto.gender?.name() == 'MALE'}">Nam</span>
+                        <span th:if="${candidateDto.gender?.name() == 'FEMALE'}">Nữ</span>
+                        <span th:if="${candidateDto.gender?.name() == 'OTHER'}">Khác</span>
                     </div>
                 </div>
+
                 <!-- Date of Birth -->
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Date Of Birth <span class="text-red-500">*</span>
-                    </label>
-                    <input type="date"
-                           th:field="*{dob}"
-                           class="w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                           th:classappend="${#fields.hasErrors('dob')} ? 'border-red-500' : ''">
-                    <div th:if="${#fields.hasErrors('dob')}" class="text-red-500 text-sm mt-1">
-                        <span th:errors="*{dob}"></span>
-                    </div>
-                </div>
-                <!-- Descriptions -->
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Descriptions
-                    </label>
-                    <textarea rows="4"
-                              th:field="*{description}"
-                              placeholder="Mô tả về bản thân..."
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
+                    <div class="p-3 bg-gray-50 rounded-md" th:text="${candidateDto.dob.toString()}"></div>
                 </div>
             </div>
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4">
-                <button type="submit" class="flex-1 bg-red-600 text-white py-3 px-6 rounded-md font-medium hover:bg-red-700 transition-colors">
-                    Update Information
-                </button>
-                <button type="button" id="changePasswordBtn" class="flex-1 bg-white border-2 border-red-600 text-red-600 py-3 px-6 rounded-md font-medium hover:bg-red-50 transition-colors">
-                    Change Password
-                </button>
+
+            <!-- Technologies -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Công nghệ đã đăng ký</label>
+                <div class="flex flex-wrap gap-2">
+                    <span th:each="tech : ${candidateDto.technologies}"
+                          class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                          th:text="${tech.name}">
+                    </span>
+                    <span th:if="${#lists.isEmpty(candidateDto.technologies)}"
+                          class="text-gray-400 text-sm">
+                        Chưa có công nghệ nào
+                    </span>
+                </div>
             </div>
-        </form>
+
+            <!-- Description -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+                <div class="p-3 bg-gray-50 rounded-md min-h-20" th:text="${candidateDto.description ?: 'Chưa có mô tả'}"></div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4">
+            <button type="button" id="editProfileBtn"
+                    class="flex-1 bg-red-600 text-white py-3 px-6 rounded-md font-medium hover:bg-red-700 transition-colors">
+                Chỉnh sửa hồ sơ
+            </button>
+            <button type="button" id="changePasswordBtn"
+                    class="flex-1 bg-white border-2 border-red-600 text-red-600 py-3 px-6 rounded-md font-medium hover:bg-red-50 transition-colors">
+                Đổi mật khẩu
+            </button>
+        </div>
     </div>
 </main>
 
-<!-- Change Password Modal -->
-<div id="changePasswordModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
-     th:classappend="${showPasswordModal} ? '' : 'hidden'">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+<!-- Edit Profile Modal (Combined) -->
+<div id="editProfileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+     th:classappend="${showEditModal} ? '' : 'hidden'">
+    <div class="relative top-5 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
         <div class="flex items-center justify-between pb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Change Password</h3>
-            <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+            <h3 class="text-lg font-semibold text-gray-900">Chỉnh sửa hồ sơ</h3>
+            <button type="button" id="closeProfileModalBtn" class="text-gray-400 hover:text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
-        <!-- Password Error Message -->
-        <div th:if="${passwordError}" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-            <span th:text="${passwordError}"></span>
-        </div>
-        <form th:action="@{/candidate/profile/change-password}" th:object="${changePasswordDto}" method="post">
-            <div class="mt-4">
+
+        <form th:action="@{/candidate/profile/update-profile}" th:object="${candidateDto}" method="post">
+            <!-- Personal Information Section -->
+            <div class="mb-6">
+                <h4 class="text-md font-semibold text-gray-800 mb-4 border-b pb-2">Thông tin cá nhân</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Tên <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" th:field="*{name}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                               th:classappend="${#fields.hasErrors('name')} ? 'border-red-500' : ''">
+                        <div th:if="${#fields.hasErrors('name')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{name}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Email (readonly) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" th:value="${currentUser.email}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100">
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Số điện thoại <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel" th:field="*{phone}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                               th:classappend="${#fields.hasErrors('phone')} ? 'border-red-500' : ''">
+                        <div th:if="${#fields.hasErrors('phone')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{phone}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Experience -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Kinh nghiệm <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" th:field="*{experience}" min="0"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                               th:classappend="${#fields.hasErrors('experience')} ? 'border-red-500' : ''">
+                        <div th:if="${#fields.hasErrors('experience')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{experience}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Gender -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Giới tính <span class="text-red-500">*</span>
+                        </label>
+                        <select th:field="*{gender}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                th:classappend="${#fields.hasErrors('gender')} ? 'border-red-500' : ''">
+                            <option value="">Chọn giới tính</option>
+                            <option value="MALE">Nam</option>
+                            <option value="FEMALE">Nữ</option>
+                            <option value="OTHER">Khác</option>
+                        </select>
+                        <div th:if="${#fields.hasErrors('gender')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{gender}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Ngày sinh <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" th:field="*{dob}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                               th:classappend="${#fields.hasErrors('dob')} ? 'border-red-500' : ''">
+                        <div th:if="${#fields.hasErrors('dob')}" class="text-red-500 text-sm mt-1">
+                            <span th:errors="*{dob}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+                    <textarea rows="3" th:field="*{description}"
+                              placeholder="Mô tả về bản thân..."
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                </div>
+            </div>
+
+            <!-- Technologies Section -->
+            <div class="mb-6">
+                <h4 class="text-md font-semibold text-gray-800 mb-4 border-b pb-2">Công nghệ</h4>
+
+                <!-- Search Technologies -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Old Password <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input type="password" th:field="*{oldPassword}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                               th:classappend="${#fields.hasErrors('oldPassword')} ? 'border-red-500' : ''">
-                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center toggle-password">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div th:if="${#fields.hasErrors('oldPassword')}" class="text-red-500 text-sm mt-1">
-                        <span th:errors="*{oldPassword}"></span>
+                    <input type="text" id="techSearch" placeholder="Tìm kiếm công nghệ..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+
+                <!-- Technologies Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-4">
+                    <div th:each="tech : ${technologies}" class="flex items-center tech-item">
+                        <input type="checkbox"
+                               th:id="'tech_' + ${tech.id}"
+                               th:value="${tech.id}"
+                               name="technologyIds"
+                               th:checked="${candidateDto.technologyIds != null and #lists.contains(candidateDto.technologyIds, tech.id)}"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label th:for="'tech_' + ${tech.id}"
+                               th:text="${tech.name}"
+                               class="ml-2 text-sm text-gray-700 cursor-pointer tech-name"></label>
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        New Password <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input type="password" th:field="*{newPassword}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                               th:classappend="${#fields.hasErrors('newPassword')} ? 'border-red-500' : ''">
-                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center toggle-password">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div th:if="${#fields.hasErrors('newPassword')}" class="text-red-500 text-sm mt-1">
-                        <span th:errors="*{newPassword}"></span>
+
+                <!-- Selected Technologies Display -->
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Công nghệ đã chọn:</label>
+                    <div id="selectedTechnologies" class="flex flex-wrap gap-2 min-h-8 p-2 border border-gray-200 rounded-md bg-gray-50">
+                        <!-- Selected technologies will be displayed here via JavaScript -->
                     </div>
                 </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Confirm New Password <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input type="password" th:field="*{confirmPassword}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                               th:classappend="${#fields.hasErrors('confirmPassword')} ? 'border-red-500' : ''">
-                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center toggle-password">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div th:if="${#fields.hasErrors('confirmPassword')}" class="text-red-500 text-sm mt-1">
-                        <span th:errors="*{confirmPassword}"></span>
-                    </div>
-                </div>
-                <div class="flex items-center justify-end space-x-4 pt-4">
-                    <button type="button" id="cancelBtn"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors">
-                        Save
-                    </button>
-                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-4 pt-4 mt-4 border-t">
+                <button type="button" id="cancelProfileBtn"
+                        class="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                    Hủy
+                </button>
+                <button type="submit"
+                        class="px-6 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors">
+                    Lưu thay đổi
+                </button>
             </div>
         </form>
     </div>
@@ -224,69 +272,351 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Lấy các phần tử modal và nút
-        const modal = document.getElementById('changePasswordModal');
-        const openBtn = document.getElementById('changePasswordBtn');
-        const closeBtn = document.getElementById('closeModalBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
+        // Modal elements
+        const profileModal = document.getElementById('editProfileModal');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const closeProfileBtn = document.getElementById('closeProfileModalBtn');
+        const cancelProfileBtn = document.getElementById('cancelProfileBtn');
 
-        // Hàm mở modal
-        function openModal() {
-            if (modal) {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-        }
+        // Technology elements
+        const techSearch = document.getElementById('techSearch');
+        const techItems = document.querySelectorAll('.tech-item');
+        const selectedTechnologies = document.getElementById('selectedTechnologies');
+        const techCheckboxes = document.querySelectorAll('input[name="technologyIds"]');
 
-        // Hàm đóng modal
-        function closeModal() {
-            if (modal) {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        }
+        // Password modal elements
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const changePasswordModal = document.getElementById('changePasswordModal');
+        const closePasswordBtn = document.getElementById('closePasswordModalBtn');
+        const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
 
-        // Gán sự kiện mở modal
-        if (openBtn) {
-            openBtn.addEventListener('click', openModal);
-        }
+        // Modal management functions
+        const ModalManager = {
+            open: function(modal) {
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
 
-        // Gán sự kiện đóng modal cho các nút
-        if (closeBtn) {
-            closeBtn.addEventListener('click', closeModal);
-        }
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', closeModal);
-        }
-
-        // Đóng modal khi click ra ngoài nội dung modal
-        if (modal) {
-            modal.addEventListener('mousedown', function(e) {
-                if (e.target === modal) {
-                    closeModal();
+                    // Nếu là profile modal, cập nhật hiển thị công nghệ
+                    if (modal.id === 'editProfileModal') {
+                        setTimeout(() => {
+                            TechnologyManager.updateSelectedDisplay();
+                        }, 100);
+                    }
                 }
-            });
+            },
+
+            close: function(modal) {
+                if (modal) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            },
+
+            closeAll: function() {
+                const modals = document.querySelectorAll('.fixed.inset-0');
+                modals.forEach(modal => {
+                    if (!modal.classList.contains('hidden')) {
+                        this.close(modal);
+                    }
+                });
+            }
+        };
+
+        // Technology management
+        const TechnologyManager = {
+            // Cập nhật hiển thị các công nghệ đã chọn
+            updateSelectedDisplay: function() {
+                const selected = [];
+                techCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const label = document.querySelector(`label[for="${checkbox.id}"]`);
+                        if (label) {
+                            selected.push({
+                                id: checkbox.value,
+                                name: label.textContent.trim()
+                            });
+                        }
+                    }
+                });
+
+                if (selectedTechnologies) {
+                    selectedTechnologies.innerHTML = '';
+
+                    if (selected.length === 0) {
+                        selectedTechnologies.innerHTML =
+                            '<span class="text-gray-400 text-sm">Chưa chọn công nghệ nào</span>';
+                    } else {
+                        selected.forEach(tech => {
+                            const span = document.createElement('span');
+                            span.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800';
+                            span.textContent = tech.name;
+                            selectedTechnologies.appendChild(span);
+                        });
+                    }
+                }
+            },
+
+            // Tìm kiếm công nghệ
+            filterTechnologies: function(searchTerm) {
+                const term = searchTerm.toLowerCase();
+                techItems.forEach(item => {
+                    const techName = item.querySelector('.tech-name');
+                    if (techName) {
+                        const name = techName.textContent.toLowerCase();
+                        item.style.display = name.includes(term) ? 'flex' : 'none';
+                    }
+                });
+            },
+
+            // Khởi tạo sự kiện cho công nghệ
+            init: function() {
+                // Sự kiện tìm kiếm
+                if (techSearch) {
+                    let searchTimeout;
+                    techSearch.addEventListener('input', function() {
+                        clearTimeout(searchTimeout);
+                        searchTimeout = setTimeout(() => {
+                            TechnologyManager.filterTechnologies(this.value);
+                        }, 300);
+                    });
+                }
+
+                // Sự kiện thay đổi checkbox
+                techCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        TechnologyManager.updateSelectedDisplay();
+                    });
+                });
+
+                // Khởi tạo hiển thị ban đầu
+                this.updateSelectedDisplay();
+            }
+        };
+
+        // Form validation
+        const FormValidator = {
+            validateField: function(field) {
+                const value = field.value.trim();
+                const isRequired = field.hasAttribute('required') || field.classList.contains('required');
+
+                if (isRequired && !value) {
+                    this.showFieldError(field, 'Trường này là bắt buộc');
+                    return false;
+                }
+
+                // Validation theo type
+                switch (field.type) {
+                    case 'email':
+                        if (value && !this.isValidEmail(value)) {
+                            this.showFieldError(field, 'Email không hợp lệ');
+                            return false;
+                        }
+                        break;
+                    case 'tel':
+                        if (value && !this.isValidPhone(value)) {
+                            this.showFieldError(field, 'Số điện thoại không hợp lệ');
+                            return false;
+                        }
+                        break;
+                    case 'number':
+                        if (value && isNaN(value)) {
+                            this.showFieldError(field, 'Vui lòng nhập số');
+                            return false;
+                        }
+                        break;
+                }
+
+                this.clearFieldError(field);
+                return true;
+            },
+
+            isValidEmail: function(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            },
+
+            isValidPhone: function(phone) {
+                const phoneRegex = /^[0-9]{10,11}$/;
+                return phoneRegex.test(phone.replace(/\s/g, ''));
+            },
+
+            showFieldError: function(field, message) {
+                field.classList.add('border-red-500');
+
+                // Tìm hoặc tạo error message
+                let errorDiv = field.parentNode.querySelector('.field-error');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'field-error text-red-500 text-sm mt-1';
+                    field.parentNode.appendChild(errorDiv);
+                }
+                errorDiv.textContent = message;
+            },
+
+            clearFieldError: function(field) {
+                field.classList.remove('border-red-500');
+                const errorDiv = field.parentNode.querySelector('.field-error');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            },
+
+            validateForm: function(form) {
+                const fields = form.querySelectorAll('input, select, textarea');
+                let isValid = true;
+
+                fields.forEach(field => {
+                    if (!this.validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+        };
+
+        // Event handlers
+        const EventHandlers = {
+            init: function() {
+                // Profile modal events
+                if (editProfileBtn) {
+                    editProfileBtn.addEventListener('click', () => {
+                        ModalManager.open(profileModal);
+                    });
+                }
+
+                if (closeProfileBtn) {
+                    closeProfileBtn.addEventListener('click', () => {
+                        ModalManager.close(profileModal);
+                    });
+                }
+
+                if (cancelProfileBtn) {
+                    cancelProfileBtn.addEventListener('click', () => {
+                        ModalManager.close(profileModal);
+                    });
+                }
+
+                // Password modal events
+                if (changePasswordBtn) {
+                    changePasswordBtn.addEventListener('click', () => {
+                        ModalManager.open(changePasswordModal);
+                    });
+                }
+
+                if (closePasswordBtn) {
+                    closePasswordBtn.addEventListener('click', () => {
+                        ModalManager.close(changePasswordModal);
+                    });
+                }
+
+                if (cancelPasswordBtn) {
+                    cancelPasswordBtn.addEventListener('click', () => {
+                        ModalManager.close(changePasswordModal);
+                    });
+                }
+
+                // Click outside modal to close
+                document.addEventListener('mousedown', function(e) {
+                    if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+                        ModalManager.close(e.target);
+                    }
+                });
+
+                // Escape key to close modals
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        ModalManager.closeAll();
+                    }
+                });
+
+                // Form validation on input
+                document.addEventListener('input', function(e) {
+                    if (e.target.matches('input, select, textarea')) {
+                        FormValidator.validateField(e.target);
+                    }
+                });
+
+                // Form submission
+                const profileForm = document.querySelector('form[action*="update-profile"]');
+                if (profileForm) {
+                    profileForm.addEventListener('submit', function(e) {
+                        if (!FormValidator.validateForm(this)) {
+                            e.preventDefault();
+
+                            // Scroll to first error
+                            const firstError = this.querySelector('.border-red-500');
+                            if (firstError) {
+                                firstError.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'center'
+                                });
+                                firstError.focus();
+                            }
+                        }
+                    });
+                }
+            }
+        };
+
+        // Utility functions
+        const Utils = {
+            // Hiển thị thông báo
+            showNotification: function(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+                    type === 'success' ? 'bg-green-100 text-green-800 border border-green-400' :
+                        type === 'error' ? 'bg-red-100 text-red-800 border border-red-400' :
+                            'bg-blue-100 text-blue-800 border border-blue-400'
+                }`;
+                notification.textContent = message;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            },
+
+            // Debounce function
+            debounce: function(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+        };
+
+        // Initialize everything
+        function init() {
+            try {
+                EventHandlers.init();
+                TechnologyManager.init();
+
+                console.log('Profile page initialized successfully');
+            } catch (error) {
+                console.error('Error initializing profile page:', error);
+            }
         }
 
-        // Đóng modal khi nhấn phím Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
-                closeModal();
-            }
-        });
+        // Run initialization
+        init();
 
-        // Xử lý ẩn/hiện mật khẩu
-        document.querySelectorAll('.toggle-password').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const input = button.parentElement.querySelector('input[type="password"], input[type="text"]');
-                if (input) {
-                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-                    input.setAttribute('type', type);
-                }
-            });
-        });
+        // Expose utilities globally if needed
+        window.ProfilePage = {
+            ModalManager,
+            TechnologyManager,
+            FormValidator,
+            Utils
+        };
     });
+
 </script>
 
 </body>

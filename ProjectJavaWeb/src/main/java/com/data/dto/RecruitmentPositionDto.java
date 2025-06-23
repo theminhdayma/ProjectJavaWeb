@@ -11,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -41,19 +42,16 @@ public class RecruitmentPositionDto {
     private Status status = Status.ACTIVE;
 
     @PastOrPresent(message = "Ngày tạo không thể ở tương lai")
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdDate = LocalDate.now();
 
     @NotNull(message = "Ngày hết hạn không được để trống")
     @Future(message = "Ngày hết hạn phải ở tương lai")
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate expiredDate;
 
     @NotEmpty(message = "Phải chọn ít nhất một công nghệ")
     private List<Technology> technologies;
-
-    private String createdDateFormatted;
-    private String expiredDateFormatted;
 
     public boolean checkSalaryRange() {
         if (minSalary != null && maxSalary != null && minSalary >= maxSalary) {
@@ -61,21 +59,4 @@ public class RecruitmentPositionDto {
         }
         return true;
     }
-
-    public String getCreatedDateFormatted() {
-        if (createdDate != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            return createdDate.format(formatter);
-        }
-        return "";
-    }
-
-    public String getExpiredDateFormatted() {
-        if (expiredDate != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            return expiredDate.format(formatter);
-        }
-        return "";
-    }
-
 }

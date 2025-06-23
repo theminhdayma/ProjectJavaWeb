@@ -1,11 +1,13 @@
 package com.data.dto;
 
+import com.data.entity.Technology;
 import com.data.entity.enums.Gender;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -33,4 +35,7 @@ public class CandidateDto {
     @Past(message = "Ngày sinh phải là ngày trong quá khứ")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dob;
+
+    private List<Integer> technologyIds;
+    private List<Technology> technologies;
 }

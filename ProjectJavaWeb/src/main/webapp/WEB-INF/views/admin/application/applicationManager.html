@@ -1,12 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Quản lý Đơn Ứng Tuyển</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen flex font-sans">
+
+<!-- Sidebar -->
 <div th:insert="admin/sidebar :: SIDEBAR"></div>
-<h1>Trang đơn ứng tuyển</h1>
+
+<!-- Main Content -->
+<div class="flex-1 p-8">
+    <!-- Header Section -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-blue-600 text-xl">📄</span>
+                <h1 class="text-2xl font-bold text-gray-800">Application Management</h1>
+            </div>
+
+            <!-- Search and Filter Form -->
+            <!-- Search and Filter Form -->
+            <form th:action="@{/admin/applications}" method="get" class="flex items-center space-x-4">
+                <!-- Process Filter Dropdown -->
+                <div class="relative">
+                    <select name="progress"
+                            onchange="this.form.submit()"
+                            class="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Tất cả trạng thái</option>
+                        <option th:each="progressValue : ${progressValues}"
+                                th:value="${progressValue}"
+                                th:text="${progressValue.displayName}"
+                                th:selected="${progressValue == selectedProgress}">
+                        </option>
+                    </select>
+                    <span class="absolute right-3 top-3 text-gray-400 text-xs">▼</span>
+                </div>
+
+                <!-- Search Box -->
+                <div class="relative">
+                    <input type="text"
+                           name="keyword"
+                           th:value="${keyword}"
+                           placeholder="Tìm kiếm theo tên ứng viên..."
+                           oninput="handleSearchInput(this)"
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64">
+                    <span class="absolute left-3 top-3 text-gray-400">🔍</span>
+                </div>
+
+                <!-- Hidden fields để giữ phân trang -->
+                <input type="hidden" name="page" th:value="${currentPage}">
+                <input type="hidden" name="size" th:value="${pageSize}">
+
+                <!-- Bỏ nút submit -->
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+        <p class="text-gray-600">
+            Hiển thị <span th:text="${#lists.size(applicationManager)}">0</span>
+            trong tổng số <span th:text="${totalElements}">0</span> đơn ứng tuyển
+            <span th:if="${not #strings.isEmpty(keyword)}">
+                cho từ khóa "<span th:text="${keyword}"></span>"
+            </span>
+            <span th:if="${selectedProgress != null}">
+                với trạng thái "<span th:text="${selectedProgress.displayName}"></span>"
+            </span>
+        </p>
+    </div>
+
+    <!-- Table Section -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <!-- Kiểm tra nếu có dữ liệu -->
+        <div th:if="${not #lists.isEmpty(applicationManager)}">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên Ứng Viên</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vị Trí Tuyển Dụng</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Tạo</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <!-- Vòng lặp render từng application -->
+                <tr th:each="app, iterStat : ${applicationManager}" class="hover:bg-gray-50">
+                    <!-- STT với phân trang -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                        th:text="${(currentPage * pageSize) + iterStat.index + 1}">1</td>
+
+                    <!-- Tên ứng viên với link -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a th:href="@{'/admin/applications/' + ${app.id}}"
+                           class="text-blue-600 hover:text-blue-800 underline text-sm"
+                           th:text="${app.candidateName}">Tên ứng viên</a>
+                        <div class="text-xs text-gray-500" th:text="${app.candidateEmail}">Email</div>
+                    </td>
+
+                    <!-- Vị trí tuyển dụng -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900" th:text="${app.positionTitle}">Vị trí</div>
+                        <div class="text-xs text-gray-500" th:text="${app.departmentName}">Phòng ban</div>
+                    </td>
+
+                    <!-- Ngày tạo đã format -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                        th:text="${app.createdAtFormatted}">Ngày tạo</td>
+
+                    <!-- Trạng thái với màu sắc động - ĐÃ SỬA -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div th:switch="${app.progress.name()}">
+                <span th:case="'PENDING'"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+                      th:text="${app.progress.displayName}">Chờ phản hồi</span>
+
+                            <span th:case="'HANDLING'"
+                                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                  th:text="${app.progress.displayName}">Đã bị từ chối</span>
+
+                            <span th:case="'INTERVIEWING'"
+                                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800"
+                                  th:text="${app.progress.displayName}">Quá trình phỏng vấn</span>
+
+                            <span th:case="'DONE'"
+                                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                  th:text="${app.progress.displayName}">Đang xử lý</span>
+
+                            <span th:case="'REJECTED'"
+                                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                                  th:text="${app.progress.displayName}">Đã hủy đơn</span>
+
+                            <span th:case="*"
+                                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                                  th:text="${app.progress.displayName}">Không xác định</span>
+                        </div>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <a th:href="@{'/admin/applications/' + ${app.id}}"
+                               class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 p-1 rounded inline-block"
+                               title="Xem chi tiết">
+                                📝 Xem chi tiết
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+        <!-- Thông báo khi không có dữ liệu -->
+        <div th:if="${#lists.isEmpty(applicationManager)}" class="text-center py-12">
+            <div class="text-gray-500 text-lg">
+                <span class="text-4xl mb-4 block">📭</span>
+                <p>Không tìm thấy đơn ứng tuyển nào</p>
+                <p class="text-sm mt-2" th:if="${not #strings.isEmpty(keyword)}">
+                    Thử tìm kiếm với từ khóa khác hoặc <a th:href="@{/admin/applications}" class="text-blue-600 underline">xem tất cả</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div th:if="${totalPages > 1}" class="flex items-center justify-center mt-6">
+        <nav class="flex items-center space-x-1">
+            <!-- Previous Button -->
+            <a th:if="${currentPage > 0}"
+               th:href="@{/admin/applications(page=${currentPage - 1}, size=${pageSize}, keyword=${keyword}, progress=${selectedProgress})}"
+               class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md">
+                ‹ Trước
+            </a>
+
+            <!-- Page Numbers -->
+            <span th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${pageNum != currentPage}"
+                   th:href="@{/admin/applications(page=${pageNum}, size=${pageSize}, keyword=${keyword}, progress=${selectedProgress})}"
+                   th:text="${pageNum + 1}"
+                   class="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">1</a>
+
+                <span th:if="${pageNum == currentPage}"
+                      th:text="${pageNum + 1}"
+                      class="px-3 py-2 bg-blue-500 text-white rounded-md">1</span>
+            </span>
+
+            <!-- Next Button -->
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/admin/applications(page=${currentPage + 1}, size=${pageSize}, keyword=${keyword}, progress=${selectedProgress})}"
+               class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md">
+                Sau ›
+            </a>
+        </nav>
+
+    </div>
+</div>
+
+<script>
+    // Biến để lưu timeout cho debounce
+    let searchTimeout;
+
+    // Hàm debounce để tránh submit quá nhiều lần
+    function debounce(func, delay) {
+        return function() {
+            const context = this;
+            const args = arguments;
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                func.apply(context, args);
+            }, delay);
+        };
+    }
+
+    // Hàm xử lý input search
+    function handleSearchInput(inputElement) {
+        // Reset trang về 0 khi tìm kiếm
+        const pageInput = inputElement.form.querySelector('input[name="page"]');
+        if (pageInput) {
+            pageInput.value = 0;
+        }
+
+        // Debounce submit với delay 500ms
+        debounce(function() {
+            inputElement.form.submit();
+        }, 500)();
+    }
+
+    // Xử lý khi DOM đã load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto submit cho select
+        const selectElement = document.querySelector('select[name="progress"]');
+        if (selectElement) {
+            selectElement.addEventListener('change', function() {
+                // Reset trang về 0 khi thay đổi filter
+                const pageInput = this.form.querySelector('input[name="page"]');
+                if (pageInput) {
+                    pageInput.value = 0;
+                }
+                this.form.submit();
+            });
+        }
+    });
+</script>
 </body>
 </html>

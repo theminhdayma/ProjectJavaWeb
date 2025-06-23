@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Technology Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         /* Animation đơn giản cho modal */
         .modal-overlay {
@@ -41,6 +43,42 @@
                 transform: translateY(0);
             }
         }
+
+        /* Search input với icon kính lúp */
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .search-input {
+            padding-left: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .search-input:focus + .search-icon {
+            color: #ef4444;
+        }
+
+        /* Hover effect cho search container */
+        .search-container:hover .search-icon {
+            color: #6b7280;
+        }
+
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex font-sans">
@@ -127,20 +165,6 @@
         </div>
     </div>
 
-<!--    &lt;!&ndash; Flash Messages &ndash;&gt;-->
-<!--    <div th:if="${successMessage}" class="flash-message mb-4 text-green-700 bg-green-100 p-4 rounded-lg border border-green-200 flex items-center gap-2">-->
-<!--        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
-<!--            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>-->
-<!--        </svg>-->
-<!--        <p th:text="${successMessage}"></p>-->
-<!--    </div>-->
-<!--    <div th:if="${errorMessage}" class="flash-message mb-4 text-red-700 bg-red-100 p-4 rounded-lg border border-red-200 flex items-center gap-2">-->
-<!--        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
-<!--            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>-->
-<!--        </svg>-->
-<!--        <p th:text="${errorMessage}"></p>-->
-<!--    </div>-->
-
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -149,15 +173,30 @@
             </svg>
             Technology Management
         </h2>
+        <!-- Search Form với loading indicator -->
         <div class="flex gap-3">
-            <form th:action="@{/admin/technology}" method="get" class="flex gap-2">
-                <input type="text" name="search" th:value="${search}" placeholder="Tìm kiếm công nghệ..."
-                       class="w-64 border border-gray-300 px-4 py-2 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-red-300 focus:outline-none">
-                <button type="submit"
-                        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm shadow transition-colors">
-                    Tìm kiếm
-                </button>
+            <form th:action="@{/admin/technology}" method="get" class="relative search-container">
+                <input type="text" name="search" th:value="${search}"
+                       placeholder="Tìm kiếm công nghệ..."
+                       class="w-64 border border-gray-300 pl-10 pr-10 py-2 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-red-300 focus:outline-none transition-all search-input">
+
+                <!-- Icon kính lúp -->
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-400 search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+
+                <!-- Loading spinner (ẩn mặc định) -->
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none loading-spinner hidden">
+                    <svg class="w-4 h-4 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
             </form>
+
             <a th:href="@{/admin/technology/add}"
                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm shadow transition-colors flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -377,6 +416,70 @@
                     message.remove();
                 }, 500);
             }, 3000);
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const loadingSpinner = document.querySelector('.loading-spinner');
+        const searchIcon = document.querySelector('.search-icon');
+        let searchTimeout;
+
+        function showLoading() {
+            if (loadingSpinner && searchIcon) {
+                loadingSpinner.classList.remove('hidden');
+                searchIcon.classList.add('hidden');
+            }
+        }
+
+        function hideLoading() {
+            if (loadingSpinner && searchIcon) {
+                loadingSpinner.classList.add('hidden');
+                searchIcon.classList.remove('hidden');
+            }
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+
+                if (this.value.trim() !== '') {
+                    showLoading();
+
+                    // Debounce search - chờ 500ms sau khi người dùng ngừng gõ
+                    searchTimeout = setTimeout(() => {
+                        this.form.submit();
+                    }, 500);
+                } else {
+                    hideLoading();
+                    // Submit ngay nếu ô tìm kiếm trống để hiển thị tất cả
+                    searchTimeout = setTimeout(() => {
+                        this.form.submit();
+                    }, 300);
+                }
+            });
+
+            // Submit ngay khi nhấn Enter
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    clearTimeout(searchTimeout);
+                    showLoading();
+                    setTimeout(() => {
+                        this.form.submit();
+                    }, 100);
+                }
+            });
+
+            // Ẩn loading khi focus out và không có thay đổi
+            searchInput.addEventListener('blur', function() {
+                setTimeout(() => {
+                    hideLoading();
+                }, 200);
+            });
+        }
+
+        // Ẩn loading khi trang load xong
+        window.addEventListener('load', function() {
+            hideLoading();
         });
     });
 </script>

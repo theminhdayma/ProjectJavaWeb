@@ -29,8 +29,8 @@ public class RecruitmentPositionServiceImp implements RecruitmentPositionService
     }
 
     @Override
-    public long countAll() {
-        return recruitmentPositionRep.countAll();
+    public long countAll(String keyword) {
+        return recruitmentPositionRep.countAll(keyword);
     }
 
     @Override
@@ -41,5 +41,20 @@ public class RecruitmentPositionServiceImp implements RecruitmentPositionService
     @Override
     public boolean delete(int id) {
         return recruitmentPositionRep.delete(id);
+    }
+
+    @Override
+    public List<RecruitmentPosition> findAllByTechnology(String keyword, Integer technologyId, int page, int size) {
+        return recruitmentPositionRep.findAllByTechnology(keyword, technologyId, page, size);
+    }
+
+    @Override
+    public long countAllByTechnology(String keyword, Integer technologyId) {
+        return recruitmentPositionRep.countAllByTechnology(keyword, technologyId);
+    }
+
+    @Override
+    public List<RecruitmentPosition> findRandomPositionsExcluding(int excludeId, int limit) {
+        return recruitmentPositionRep.findRandomPositionsExcluding(excludeId, limit);
     }
 }

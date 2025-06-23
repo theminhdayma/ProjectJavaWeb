@@ -33,4 +33,9 @@ public class Technology {
 
     @ManyToMany(mappedBy = "technologies")
     private List<RecruitmentPosition> positions;
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

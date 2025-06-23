@@ -1,5 +1,6 @@
 package com.data.dto;
 
+import com.data.entity.Technology;
 import com.data.entity.enums.Gender;
 import com.data.entity.enums.Status;
 import lombok.AllArgsConstructor;
@@ -50,4 +51,5 @@ public class AuthDto {
     private LocalDate dob;
 
     private List<Integer> technologyIds;
+    private List<Technology> technologies;
 }

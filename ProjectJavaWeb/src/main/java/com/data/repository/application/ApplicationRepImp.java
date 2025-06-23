@@ -1,9 +1,12 @@
 package com.data.repository.application;
 
 import com.data.entity.Application;
+import com.data.entity.enums.Progress;
+import com.data.entity.enums.ResultInterview;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,14 +18,20 @@ public class ApplicationRepImp implements ApplicationRep {
     private final SessionFactory sessionFactory;
 
     @Override
-    public List<Application> findAll(int page, int size) {
+    public List<Application> findAll(String keyword, Progress progress, ResultInterview resultInterview, int page, int size) {
         Session session = null;
         try {
             session = sessionFactory.openSession();
-            return session.createQuery("FROM Application", Application.class)
-                    .setFirstResult(page * size)
-                    .setMaxResults(size)
-                    .list();
+            String hql = "FROM Application a WHERE (:keyword IS NULL OR a.candidate.name LIKE :keyword) " +
+                         "AND (:progress IS NULL OR a.progress = :progress) " +
+                         "AND (:resultInterview IS NULL OR a.resultInterview = :resultInterview)";
+            Query<Application> query = session.createQuery(hql, Application.class);
+            query.setParameter("keyword", keyword != null ? "%" + keyword + "%" : null);
+            query.setParameter("progress", progress);
+            query.setParameter("resultInterview", resultInterview);
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+            return query.list();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -70,20 +79,20 @@ public class ApplicationRepImp implements ApplicationRep {
     }
 
     @Override
-    public boolean save(Application application) {
+    public Application save(Application application) {
         Session session = null;
         try {
             session = sessionFactory.openSession();
             session.beginTransaction();
-            session.saveOrUpdate(application);
+            session.save(application);
             session.getTransaction().commit();
-            return true;
+            return application;
         } catch (Exception e) {
             if (session.getTransaction() != null) {
                 session.getTransaction().rollback();
             }
             e.printStackTrace();
-            return false;
+            return null;
         } finally {
             if (session != null) {
                 session.close();
@@ -92,11 +101,18 @@ public class ApplicationRepImp implements ApplicationRep {
     }
 
     @Override
-    public long countAll() {
+    public long countAll(String keyword, Progress progress, ResultInterview resultInterview) {
         Session session = null;
         try {
             session = sessionFactory.openSession();
-            return (Long) session.createQuery("SELECT COUNT(a) FROM Application a").uniqueResult();
+            String hql = "SELECT COUNT(a) FROM Application a WHERE (:keyword IS NULL OR a.candidate.name LIKE :keyword) " +
+                         "AND (:progress IS NULL OR a.progress = :progress) " +
+                         "AND (:resultInterview IS NULL OR a.resultInterview = :resultInterview)";
+            Query<Long> query = session.createQuery(hql, Long.class);
+            query.setParameter("keyword", keyword != null ? "%" + keyword + "%" : null);
+            query.setParameter("progress", progress);
+            query.setParameter("resultInterview", resultInterview);
+            return query.uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return 0;

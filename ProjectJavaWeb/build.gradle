@@ -63,6 +63,10 @@ dependencies {
     implementation "org.springframework.security:spring-security-web:${springSecurityVersion}"
     implementation "org.springframework.security:spring-security-config:${springSecurityVersion}"
     implementation "org.springframework.security:spring-security-core:${springSecurityVersion}"
+
+    implementation 'org.springframework:spring-context-support:5.3.32'
+    implementation 'javax.mail:javax.mail-api:1.6.2'
+    implementation 'com.sun.mail:javax.mail:1.6.2'
 }
 
 test {

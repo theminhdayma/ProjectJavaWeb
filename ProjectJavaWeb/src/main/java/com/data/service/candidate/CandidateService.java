@@ -11,8 +11,9 @@ public interface CandidateService {
 
     // Phương thức lọc tổng hợp duy nhất (không có technology)
     List<Candidate> getFilteredCandidates(String search, String gender, Integer age,
-                                          Integer experience, int page, int size);
+                                          Integer experience, Integer technologyId,
+                                          int page, int size);
     long countFilteredCandidates(String search, String gender, Integer age,
-                                 Integer experience);
+                                 Integer experience, Integer technologyId);
     boolean updateCandidate(Candidate candidate);
 }

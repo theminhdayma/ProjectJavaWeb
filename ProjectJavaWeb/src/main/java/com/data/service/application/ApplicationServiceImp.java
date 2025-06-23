@@ -1,6 +1,8 @@
 package com.data.service.application;
 
 import com.data.entity.Application;
+import com.data.entity.enums.Progress;
+import com.data.entity.enums.ResultInterview;
 import com.data.repository.application.ApplicationRep;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,9 +15,10 @@ public class ApplicationServiceImp implements ApplicationService {
 
     private final ApplicationRep applicationRep;
 
+
     @Override
-    public List<Application> findAll(int page, int size) {
-        return applicationRep.findAll(page, size);
+    public List<Application> findAll(String keyword, Progress progress, ResultInterview resultInterview, int page, int size) {
+        return applicationRep.findAll(keyword, progress, resultInterview, page, size);
     }
 
     @Override
@@ -29,13 +32,13 @@ public class ApplicationServiceImp implements ApplicationService {
     }
 
     @Override
-    public boolean save(Application application) {
-        return applicationRep.save(application);
+    public long countAll(String keyword, Progress progress, ResultInterview resultInterview) {
+        return applicationRep.countAll(keyword, progress, resultInterview);
     }
 
     @Override
-    public long countAll() {
-        return applicationRep.countAll();
+    public Application save(Application application) {
+        return applicationRep.save(application);
     }
 
     @Override

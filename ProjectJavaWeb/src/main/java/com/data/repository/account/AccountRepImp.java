@@ -164,7 +164,7 @@ public class AccountRepImp implements AccountRep {
         try {
             session = sessionFactory.openSession();
             session.beginTransaction();
-            Query query = session.createQuery("UPDATE Account SET status = 'INACTIVE' WHERE id = :id");
+            Query query = session.createQuery("UPDATE Account SET status = 'INACTIVE' WHERE candidate.id = :id");
             query.setParameter("id", id);
             int result = query.executeUpdate();
             session.getTransaction().commit();
@@ -188,7 +188,7 @@ public class AccountRepImp implements AccountRep {
         try {
             session = sessionFactory.openSession();
             session.beginTransaction();
-            Query query = session.createQuery("UPDATE Account SET status = 'ACTIVE' WHERE id = :id");
+            Query query = session.createQuery("UPDATE Account SET status = 'ACTIVE' WHERE candidate.id = :id");
             query.setParameter("id", id);
             int result = query.executeUpdate();
             session.getTransaction().commit();

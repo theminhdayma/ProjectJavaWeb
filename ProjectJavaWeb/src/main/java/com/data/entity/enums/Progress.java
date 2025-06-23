@@ -2,7 +2,7 @@ package com.data.entity.enums;
 
 public enum Progress {
     PENDING("Đang xử lý"),
-    INTERVIEWING("Quá trình phỏng vấn"),
+    INTERVIEWING("Đợi phỏng vấn"),
     WAITING_FOR_INTERVIEW_CONFIRM("Chờ xác nhận lịch phỏng vấn"),
     REQUEST_RESCHEDULE("Yêu cầu thay đổi lịch phỏng vấn"),
     INTERVIEW_SCHEDULED("Đã xác nhận lịch phỏng vấn"),

@@ -4,6 +4,7 @@ import com.data.dto.CandidateDto;
 import com.data.dto.ChangePasswordDto;
 import com.data.entity.Account;
 import com.data.entity.Candidate;
+import com.data.entity.Technology;
 import com.data.service.account.AccountService;
 import com.data.service.candidate.CandidateService;
 import com.data.service.technology.TechnologyService;
@@ -19,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/candidate/profile")
@@ -33,59 +36,73 @@ public class ProfileController {
 
     @GetMapping
     public String showProfile(Model model, HttpServletRequest request) {
-        // Lấy thông tin user từ cookie thay vì session
         Account currentUser = getCurrentUserFromCookie(request);
 
         if (currentUser == null || currentUser.getCandidate() == null) {
             return "redirect:/login";
         }
 
-        // Lấy thông tin candidate mới nhất từ database
+        // Lấy thông tin candidate mới nhất từ database với technologies
         Account account = accountService.findByEmail(currentUser.getEmail());
         if (account == null || account.getCandidate() == null) {
             return "redirect:/login";
         }
 
-        CandidateDto candidateDto = convertToDto(account.getCandidate());
+        Candidate candidate = account.getCandidate();
+        CandidateDto candidateDto = convertToDto(candidate);
+
+        // Đảm bảo technologies được set vào DTO
+        candidateDto.setTechnologies(candidate.getTechnologies());
+
+        // Tạo danh sách ID của các công nghệ đã chọn để sử dụng trong form
+        List<Integer> selectedTechIds = new ArrayList<>();
+        if (candidate.getTechnologies() != null) {
+            for (Technology tech : candidate.getTechnologies()) {
+                selectedTechIds.add(tech.getId());
+            }
+        }
+        candidateDto.setTechnologyIds(selectedTechIds);
+
         model.addAttribute("candidateDto", candidateDto);
         model.addAttribute("technologies", technologyService.findAllTechnologies());
         model.addAttribute("changePasswordDto", new ChangePasswordDto());
-        model.addAttribute("currentUser", account); // Thêm currentUser cho view
+        model.addAttribute("currentUser", account);
 
         return "candidate/profile";
     }
 
-    @PostMapping("/update-info")
-    public String updateInfo(@Valid @ModelAttribute CandidateDto candidateDto,
-                             BindingResult result,
-                             HttpServletRequest request,
-                             HttpServletResponse response,
-                             RedirectAttributes redirectAttributes,
-                             Model model) {
+    @PostMapping("/update-profile")
+    public String updateProfile(@Valid @ModelAttribute CandidateDto candidateDto,
+                                BindingResult result,
+                                @RequestParam(required = false) List<Integer> technologyIds,
+                                HttpServletRequest request,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
 
-        // Lấy thông tin user từ cookie
         Account currentUser = getCurrentUserFromCookie(request);
 
         if (currentUser == null || currentUser.getCandidate() == null) {
             return "redirect:/login";
         }
 
+        // Kiểm tra validation errors
         if (result.hasErrors()) {
+            Account account = accountService.findByEmail(currentUser.getEmail());
+            candidateDto.setTechnologies(account.getCandidate().getTechnologies());
+            model.addAttribute("candidateDto", candidateDto);
             model.addAttribute("technologies", technologyService.findAllTechnologies());
             model.addAttribute("changePasswordDto", new ChangePasswordDto());
-            model.addAttribute("currentUser", currentUser);
+            model.addAttribute("currentUser", account);
+            model.addAttribute("showEditModal", true);
             return "candidate/profile";
         }
 
-        // Lấy thông tin candidate mới nhất từ database
-        Account account = accountService.findByEmail(currentUser.getEmail());
-        if (account == null || account.getCandidate() == null) {
-            return "redirect:/login";
-        }
-
         try {
-            // Cập nhật thông tin candidate
+            // Lấy thông tin candidate mới nhất từ database
+            Account account = accountService.findByEmail(currentUser.getEmail());
             Candidate candidate = account.getCandidate();
+
+            // Cập nhật thông tin cá nhân
             candidate.setName(candidateDto.getName());
             candidate.setPhone(candidateDto.getPhone());
             candidate.setExperience(candidateDto.getExperience());
@@ -93,18 +110,28 @@ public class ProfileController {
             candidate.setDescription(candidateDto.getDescription());
             candidate.setDob(candidateDto.getDob());
 
+            // Cập nhật công nghệ
+            List<Technology> selectedTechnologies = new ArrayList<>();
+            if (technologyIds != null && !technologyIds.isEmpty()) {
+                for (Integer techId : technologyIds) {
+                    Technology tech = technologyService.findTechnologyById(techId);
+                    if (tech != null) {
+                        selectedTechnologies.add(tech);
+                    }
+                }
+            }
+            candidate.setTechnologies(selectedTechnologies);
+
             boolean success = candidateService.updateCandidate(candidate);
 
             if (success) {
-                // Cập nhật lại cookie với thông tin mới
-                account.setCandidate(candidate);
-                cookieUtils.createUserCookie(response, account);
                 redirectAttributes.addFlashAttribute("successMessage",
-                        "Cập nhật thông tin thành công!");
+                        "Cập nhật thông tin và công nghệ thành công!");
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage",
-                        "Có lỗi xảy ra khi cập nhật thông tin!");
+                        "Có lỗi xảy ra khi cập nhật!");
             }
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Có lỗi xảy ra: " + e.getMessage());
@@ -216,6 +243,20 @@ public class ProfileController {
         dto.setGender(candidate.getGender());
         dto.setDescription(candidate.getDescription());
         dto.setDob(candidate.getDob());
+
+        // Set technologies
+        dto.setTechnologies(candidate.getTechnologies());
+
+        // Set technology IDs cho form checkbox
+        List<Integer> techIds = new ArrayList<>();
+        if (candidate.getTechnologies() != null) {
+            for (Technology tech : candidate.getTechnologies()) {
+                techIds.add(tech.getId());
+            }
+        }
+        dto.setTechnologyIds(techIds);
+
         return dto;
     }
+
 }

@@ -27,18 +27,16 @@ public class CandidateServiceImp implements CandidateService {
         return candidateRep.getCandidateById(id);
     }
 
-    // PHƯƠNG THỨC LỌC TỔNG HỢP DUY NHẤT (KHÔNG CÓ TECHNOLOGY)
     @Override
-    public List<Candidate> getFilteredCandidates(String search, String gender, Integer age,
-                                                 Integer experience, int page, int size) {
-        return candidateRep.getFilteredCandidates(search, gender, age, experience, page, size);
+    public List<Candidate> getFilteredCandidates(String search, String gender, Integer age, Integer experience, Integer technologyId, int page, int size) {
+        return candidateRep.getFilteredCandidates(search, gender, age, experience, technologyId, page, size);
     }
 
     @Override
-    public long countFilteredCandidates(String search, String gender, Integer age,
-                                        Integer experience) {
-        return candidateRep.countFilteredCandidates(search, gender, age, experience);
+    public long countFilteredCandidates(String search, String gender, Integer age, Integer experience, Integer technologyId) {
+        return candidateRep.countFilteredCandidates(search, gender, age, experience, technologyId);
     }
+
 
     @Override
     public boolean updateCandidate(Candidate candidate) {

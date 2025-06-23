@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,18 +81,31 @@ public class CandidateRepImp implements CandidateRep {
 
     @Override
     public List<Candidate> getFilteredCandidates(String search, String gender, Integer age,
-                                                 Integer experience, int page, int size) {
+                                                 Integer experience, Integer technologyId,
+                                                 int page, int size) {
         Session session = null;
         List<Candidate> candidates = new ArrayList<>();
         try {
             session = sessionFactory.openSession();
 
             // QUERY 1: Lấy IDs với pagination chính xác
-            StringBuilder hqlIds = new StringBuilder("SELECT c.id FROM Candidate c");
+            StringBuilder hqlIds = new StringBuilder("SELECT DISTINCT c.id FROM Candidate c");
+
+            // Nếu có filter theo technology thì cần JOIN
+            if (technologyId != null) {
+                hqlIds.append(" JOIN c.technologies t");
+            }
+
             Map<String, Object> parameters = new HashMap<>();
             List<String> conditions = new ArrayList<>();
 
             buildWhereConditions(search, gender, age, experience, conditions, parameters);
+
+            // Thêm điều kiện lọc theo công nghệ nếu có
+            if (technologyId != null) {
+                conditions.add("t.id = :technologyId");
+                parameters.put("technologyId", technologyId);
+            }
 
             if (!conditions.isEmpty()) {
                 hqlIds.append(" WHERE ").append(String.join(" AND ", conditions));
@@ -102,21 +116,16 @@ public class CandidateRepImp implements CandidateRep {
             Query<Integer> idsQuery = session.createQuery(hqlIds.toString(), Integer.class);
             setQueryParameters(idsQuery, parameters);
 
-            // Áp dụng pagination ở đây - chính xác 100%
+            // Áp dụng pagination
             List<Integer> candidateIds = idsQuery
                     .setFirstResult(page * size)
                     .setMaxResults(size)
                     .list();
 
-            System.out.println("=== DEBUG ===");
-            System.out.println("Page: " + page + ", Size: " + size);
-            System.out.println("IDs found: " + candidateIds.size());
-            System.out.println("IDs: " + candidateIds);
-
             // QUERY 2: Lấy full entities với JOIN FETCH dựa trên IDs
             if (!candidateIds.isEmpty()) {
                 String fetchHql = "SELECT DISTINCT c FROM Candidate c " +
-                        "LEFT JOIN FETCH c.technologies " +
+                        "LEFT JOIN FETCH c.technologies t " +
                         "LEFT JOIN FETCH c.account " +
                         "WHERE c.id IN (:ids) " +
                         "ORDER BY c.id";
@@ -125,8 +134,6 @@ public class CandidateRepImp implements CandidateRep {
                 fetchQuery.setParameter("ids", candidateIds);
                 candidates = fetchQuery.list();
             }
-
-            System.out.println("Final candidates: " + candidates.size());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,35 +145,43 @@ public class CandidateRepImp implements CandidateRep {
         return candidates;
     }
 
-
-
     @Override
     public long countFilteredCandidates(String search, String gender, Integer age,
-                                        Integer experience) {
+                                        Integer experience, Integer technologyId) {
         Session session = null;
         long count = 0;
         try {
             session = sessionFactory.openSession();
 
-            StringBuilder hql = new StringBuilder("SELECT COUNT(DISTINCT c) FROM Candidate c");
+            StringBuilder hql = new StringBuilder("SELECT COUNT(DISTINCT c.id) FROM Candidate c");
+
+            // Nếu có filter theo technology thì cần JOIN
+            if (technologyId != null) {
+                hql.append(" JOIN c.technologies t");
+            }
+
             Map<String, Object> parameters = new HashMap<>();
             List<String> conditions = new ArrayList<>();
 
-            // Xây dựng điều kiện WHERE
             buildWhereConditions(search, gender, age, experience, conditions, parameters);
+
+            // Thêm điều kiện lọc theo công nghệ nếu có
+            if (technologyId != null) {
+                conditions.add("t.id = :technologyId");
+                parameters.put("technologyId", technologyId);
+            }
 
             if (!conditions.isEmpty()) {
                 hql.append(" WHERE ").append(String.join(" AND ", conditions));
             }
 
-            Query query = session.createQuery(hql.toString());
+            Query<Long> query = session.createQuery(hql.toString(), Long.class);
             setQueryParameters(query, parameters);
 
-            count = (long) query.uniqueResult();
+            count = query.uniqueResult();
 
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
         } finally {
             if (session != null) {
                 session.close();
@@ -174,6 +189,7 @@ public class CandidateRepImp implements CandidateRep {
         }
         return count;
     }
+
 
     @Override
     public boolean updateCandidate(Candidate candidate) {
@@ -198,39 +214,35 @@ public class CandidateRepImp implements CandidateRep {
     }
 
     // Phương thức helper để xây dựng điều kiện WHERE - CHỈ TÌM KIẾM THEO TÊN
-    private void buildWhereConditions(String search, String gender, Integer age, Integer experience,
-                                      List<String> conditions, Map<String, Object> parameters) {
+    private void buildWhereConditions(String search, String gender, Integer age,
+                                      Integer experience, List<String> conditions,
+                                      Map<String, Object> parameters) {
 
-        // CHỈ tìm kiếm theo tên (bỏ email)
+        // Tìm kiếm theo tên (không phân biệt hoa thường)
         if (search != null && !search.trim().isEmpty()) {
             conditions.add("LOWER(c.name) LIKE LOWER(:search)");
             parameters.put("search", "%" + search.trim() + "%");
         }
 
         // Lọc theo giới tính
-        if (gender != null && !gender.trim().isEmpty()) {
-            try {
-                Gender genderEnum = Gender.valueOf(gender.toUpperCase());
-                conditions.add("c.gender = :gender");
-                parameters.put("gender", genderEnum);
-            } catch (IllegalArgumentException e) {
-                System.err.println("Invalid gender value: " + gender);
-            }
+        if (gender != null && !gender.isEmpty()) {
+            conditions.add("c.gender = :gender");
+            parameters.put("gender", Gender.valueOf(gender));
         }
 
-        // Lọc theo tuổi (tuổi tối thiểu)
-        if (age != null && age > 0) {
-            LocalDate targetDate = LocalDate.now().minusYears(age);
-            conditions.add("c.dob <= :targetDate");
-            parameters.put("targetDate", targetDate);
+        // Lọc theo tuổi tối thiểu
+        if (age != null) {
+            conditions.add("YEAR(CURRENT_DATE) - YEAR(c.dob) >= :age");
+            parameters.put("age", age);
         }
 
-        // Lọc theo kinh nghiệm (kinh nghiệm tối thiểu)
-        if (experience != null && experience >= 0) {
+        // Lọc theo kinh nghiệm tối thiểu
+        if (experience != null) {
             conditions.add("c.experience >= :experience");
             parameters.put("experience", experience);
         }
     }
+
 
     // Phương thức helper để set parameters cho query
     private void setQueryParameters(Query query, Map<String, Object> parameters) {

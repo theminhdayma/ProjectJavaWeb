@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Vị trí Tuyển dụng</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 <body class="bg-gray-100 min-h-screen flex font-sans">
 
@@ -22,8 +24,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>
                 <h2 class="text-xl font-semibold text-gray-800">
-                    <span th:if="${recruitmentPositionDto.id == null}">Thêm Vị trí Tuyển dụng</span>
-                    <span th:if="${recruitmentPositionDto.id != null}">Sửa Vị trí Tuyển dụng</span>
+                    <span th:if="${!isEdit}">Thêm Vị trí Tuyển dụng</span>
+                    <span th:if="${isEdit}">Sửa Vị trí Tuyển dụng</span>
                 </h2>
             </div>
             <a th:href="@{/admin/recruitment-position}" class="text-gray-400 hover:text-gray-600">
@@ -33,7 +35,14 @@
             </a>
         </div>
 
-        <!-- Error Messages -->
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="mx-6 mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span th:text="${successMessage}"></span>
+        </div>
+
         <div th:if="${errorMessage}" class="mx-6 mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -42,9 +51,10 @@
         </div>
 
         <!-- Form Content -->
-        <form th:action="${recruitmentPositionDto.id == null} ? @{/admin/recruitment-position/add} : @{/admin/recruitment-position/edit/{id}(id=${recruitmentPositionDto.id})}"
+        <form th:action="${!isEdit} ? @{/admin/recruitment-position/add} : @{/admin/recruitment-position/edit/{id}(id=${recruitmentPositionDto.id})}"
               th:object="${recruitmentPositionDto}"
               method="post"
+              onsubmit="return validateForm()"
               class="p-6 space-y-6">
 
             <!-- Name Field -->
@@ -55,8 +65,9 @@
                 <input type="text"
                        id="name"
                        th:field="*{name}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="Nhập tên vị trí tuyển dụng">
+                       th:class="${#fields.hasErrors('name')} ? 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'"
+                       placeholder="Nhập tên vị trí tuyển dụng"
+                       required>
                 <div th:if="${#fields.hasErrors('name')}" class="mt-1 text-sm text-red-600 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -73,8 +84,14 @@
                 <textarea id="description"
                           th:field="*{description}"
                           rows="4"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          th:class="${#fields.hasErrors('description')} ? 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'"
                           placeholder="Mô tả chi tiết về vị trí công việc..."></textarea>
+                <div th:if="${#fields.hasErrors('description')}" class="mt-1 text-sm text-red-600 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span th:errors="*{description}"></span>
+                </div>
             </div>
 
             <!-- Salary Range -->
@@ -89,8 +106,15 @@
                            th:field="*{minSalary}"
                            step="0.01"
                            min="0"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="1000">
+                           th:class="${#fields.hasErrors('minSalary')} ? 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'"
+                           placeholder="1000"
+                           required>
+                    <div th:if="${#fields.hasErrors('minSalary')}" class="mt-1 text-sm text-red-600 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span th:errors="*{minSalary}"></span>
+                    </div>
                 </div>
 
                 <!-- Max Salary -->
@@ -103,8 +127,15 @@
                            th:field="*{maxSalary}"
                            step="0.01"
                            min="0"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="3000">
+                           th:class="${#fields.hasErrors('maxSalary')} ? 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'"
+                           placeholder="3000"
+                           required>
+                    <div th:if="${#fields.hasErrors('maxSalary')}" class="mt-1 text-sm text-red-600 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span th:errors="*{maxSalary}"></span>
+                    </div>
                 </div>
             </div>
 
@@ -117,8 +148,16 @@
                        id="minExperience"
                        th:field="*{minExperience}"
                        min="0"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="2">
+                       max="50"
+                       th:class="${#fields.hasErrors('minExperience')} ? 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'"
+                       placeholder="2"
+                       required>
+                <div th:if="${#fields.hasErrors('minExperience')}" class="mt-1 text-sm text-red-600 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span th:errors="*{minExperience}"></span>
+                </div>
             </div>
 
             <!-- Technology Selection -->
@@ -128,7 +167,8 @@
                 </label>
 
                 <!-- Selected Technologies Display -->
-                <div id="selectedTechnologies" class="flex flex-wrap gap-2 mb-3 min-h-[2rem] p-2 border border-gray-200 rounded-md bg-gray-50">
+                <div id="selectedTechnologies"
+                     th:class="${#fields.hasErrors('technologies')} ? 'flex flex-wrap gap-2 mb-3 min-h-[2rem] p-2 border border-red-300 rounded-md bg-red-50' : 'flex flex-wrap gap-2 mb-3 min-h-[2rem] p-2 border border-gray-200 rounded-md bg-gray-50'">
                     <!-- Selected technologies will be displayed here -->
                 </div>
 
@@ -144,7 +184,8 @@
                     </button>
 
                     <div id="technologyList" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-y-auto">
-                        <div th:each="tech : ${technologies}" class="technology-option px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        <div th:each="tech : ${technologies}"
+                             class="technology-option px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
                              th:data-id="${tech.id}"
                              th:data-name="${tech.name}">
                             <span th:text="${tech.name}"></span>
@@ -154,6 +195,14 @@
 
                 <!-- Hidden inputs for selected technologies -->
                 <div id="technologyInputs"></div>
+
+                <!-- Technology Error Display -->
+                <div th:if="${#fields.hasErrors('technologies')}" class="mt-1 text-sm text-red-600 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span th:errors="*{technologies}"></span>
+                </div>
             </div>
 
             <!-- Date Fields -->
@@ -166,7 +215,14 @@
                     <input type="date"
                            id="createdDate"
                            th:field="*{createdDate}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           th:class="${#fields.hasErrors('createdDate')} ? 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'"
+                           required>
+                    <div th:if="${#fields.hasErrors('createdDate')}" class="mt-1 text-sm text-red-600 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span th:errors="*{createdDate}"></span>
+                    </div>
                 </div>
 
                 <!-- Expired Date -->
@@ -177,21 +233,15 @@
                     <input type="date"
                            id="expiredDate"
                            th:field="*{expiredDate}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           th:class="${#fields.hasErrors('expiredDate')} ? 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'"
+                           required>
+                    <div th:if="${#fields.hasErrors('expiredDate')}" class="mt-1 text-sm text-red-600 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span th:errors="*{expiredDate}"></span>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Status -->
-            <div>
-                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-                    Trạng thái
-                </label>
-                <select id="status"
-                        th:field="*{status}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="ACTIVE">Hoạt động</option>
-                    <option value="INACTIVE">Không hoạt động</option>
-                </select>
             </div>
 
             <!-- Action Buttons -->
@@ -204,11 +254,12 @@
                     Hủy
                 </a>
                 <button type="submit"
+                        id="submitBtn"
                         class="px-6 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                     </svg>
-                    Lưu
+                    <span id="submitText" th:text="${isEdit} ? 'Cập nhật' : 'Thêm mới'">Lưu</span>
                 </button>
             </div>
         </form>
@@ -218,6 +269,130 @@
 <script>
     // Technology selection functionality
     let selectedTechnologies = [];
+
+    // Form validation function
+    function validateForm() {
+        const name = document.getElementById('name').value.trim();
+        const minSalary = parseFloat(document.getElementById('minSalary').value);
+        const maxSalary = parseFloat(document.getElementById('maxSalary').value);
+        const expiredDate = document.getElementById('expiredDate').value;
+        const createdDate = document.getElementById('createdDate').value;
+
+        // Reset previous error styles
+        clearErrorStyles();
+
+        let isValid = true;
+
+        // Validate name
+        if (!name) {
+            showFieldError('name', 'Tên vị trí không được để trống');
+            isValid = false;
+        }
+
+        // Validate salary range
+        if (isNaN(minSalary) || isNaN(maxSalary)) {
+            if (isNaN(minSalary)) showFieldError('minSalary', 'Lương tối thiểu không hợp lệ');
+            if (isNaN(maxSalary)) showFieldError('maxSalary', 'Lương tối đa không hợp lệ');
+            isValid = false;
+        } else if (minSalary >= maxSalary) {
+            showFieldError('maxSalary', 'Lương tối đa phải lớn hơn lương tối thiểu');
+            isValid = false;
+        }
+
+        // Validate dates
+        if (expiredDate && createdDate) {
+            const expDate = new Date(expiredDate);
+            const createDate = new Date(createdDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (expDate <= today) {
+                showFieldError('expiredDate', 'Ngày hết hạn phải ở tương lai');
+                isValid = false;
+            }
+
+            if (expDate <= createDate) {
+                showFieldError('expiredDate', 'Ngày hết hạn phải sau ngày tạo');
+                isValid = false;
+            }
+        }
+
+        // Validate technologies
+        if (selectedTechnologies.length === 0) {
+            showTechnologyError('Vui lòng chọn ít nhất một công nghệ');
+            isValid = false;
+        }
+
+        if (isValid) {
+            // Disable submit button to prevent double submission
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const originalText = submitText.textContent;
+
+            submitBtn.disabled = true;
+            submitText.textContent = 'Đang xử lý...';
+
+            // Re-enable after 5 seconds in case of error
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitText.textContent = originalText;
+            }, 5000);
+        }
+
+        return isValid;
+    }
+
+    function clearErrorStyles() {
+        // Remove error styles from all inputs
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.classList.remove('border-red-300', 'focus:ring-red-500', 'focus:border-red-500');
+            input.classList.add('border-gray-300', 'focus:ring-blue-500', 'focus:border-blue-500');
+        });
+
+        // Remove error messages
+        const errorDivs = document.querySelectorAll('.client-error');
+        errorDivs.forEach(div => div.remove());
+
+        // Reset technology container style
+        const techContainer = document.getElementById('selectedTechnologies');
+        techContainer.classList.remove('border-red-300', 'bg-red-50');
+        techContainer.classList.add('border-gray-200', 'bg-gray-50');
+    }
+
+    function showFieldError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        field.classList.remove('border-gray-300', 'focus:ring-blue-500', 'focus:border-blue-500');
+        field.classList.add('border-red-300', 'focus:ring-red-500', 'focus:border-red-500');
+
+        // Add error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center client-error';
+        errorDiv.innerHTML = `
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>${message}</span>
+        `;
+        field.parentNode.appendChild(errorDiv);
+    }
+
+    function showTechnologyError(message) {
+        const techContainer = document.getElementById('selectedTechnologies');
+        techContainer.classList.remove('border-gray-200', 'bg-gray-50');
+        techContainer.classList.add('border-red-300', 'bg-red-50');
+
+        // Add error message after technology section
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center client-error';
+        errorDiv.innerHTML = `
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>${message}</span>
+        `;
+        document.getElementById('technologyInputs').parentNode.appendChild(errorDiv);
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         const dropdown = document.getElementById('technologyDropdown');
@@ -232,11 +407,18 @@
             document.getElementById('createdDate').value = today;
         }
 
+        // Set minimum date for expired date
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('expiredDate').setAttribute('min', tomorrow.toISOString().split('T')[0]);
+
         // Load existing technologies if editing
         const existingTechs = /*[[${recruitmentPositionDto.technologies}]]*/ [];
         if (existingTechs && existingTechs.length > 0) {
             existingTechs.forEach(tech => {
-                selectedTechnologies.push({id: tech.id.toString(), name: tech.name});
+                if (tech && tech.id && tech.name) {
+                    selectedTechnologies.push({id: tech.id.toString(), name: tech.name});
+                }
             });
             updateSelectedTechnologies();
         }
@@ -261,7 +443,7 @@
                 const id = this.getAttribute('data-id');
                 const name = this.getAttribute('data-name');
 
-                if (!selectedTechnologies.find(tech => tech.id === id)) {
+                if (id && name && !selectedTechnologies.find(tech => tech.id === id)) {
                     selectedTechnologies.push({id, name});
                     updateSelectedTechnologies();
                 }
@@ -272,7 +454,7 @@
         });
 
         function updateSelectedTechnologies() {
-            // Update display
+            // Clear existing content
             selectedContainer.innerHTML = '';
             inputsContainer.innerHTML = '';
 
@@ -284,18 +466,20 @@
                     const tag = document.createElement('span');
                     tag.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 border border-blue-200';
                     tag.innerHTML = `
-                    ${tech.name}
-                    <button type="button" class="ml-2 text-blue-600 hover:text-blue-800" onclick="removeTechnology('${tech.id}')">
-                        ×
-                    </button>
-                `;
+                        ${tech.name}
+                        <button type="button" class="ml-2 text-blue-600 hover:text-blue-800" onclick="removeTechnology('${tech.id}')">
+                            ×
+                        </button>
+                    `;
                     selectedContainer.appendChild(tag);
 
-                    // Create hidden input
+                    // Create hidden input với validation
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = `technologies[${index}].id`;
                     input.value = tech.id;
+                    input.setAttribute('data-tech-id', tech.id);
+                    input.required = true;
                     inputsContainer.appendChild(input);
                 });
             }
@@ -309,6 +493,37 @@
 
         // Initialize display
         updateSelectedTechnologies();
+
+        // Real-time salary validation
+        document.getElementById('minSalary').addEventListener('input', validateSalaryRange);
+        document.getElementById('maxSalary').addEventListener('input', validateSalaryRange);
+
+        function validateSalaryRange() {
+            const minSalary = parseFloat(document.getElementById('minSalary').value);
+            const maxSalary = parseFloat(document.getElementById('maxSalary').value);
+
+            if (!isNaN(minSalary) && !isNaN(maxSalary) && minSalary >= maxSalary) {
+                document.getElementById('maxSalary').setCustomValidity('Lương tối đa phải lớn hơn lương tối thiểu');
+            } else {
+                document.getElementById('maxSalary').setCustomValidity('');
+            }
+        }
+
+        // Real-time date validation
+        document.getElementById('expiredDate').addEventListener('input', function() {
+            const expiredDate = new Date(this.value);
+            const createdDate = new Date(document.getElementById('createdDate').value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (expiredDate <= today) {
+                this.setCustomValidity('Ngày hết hạn phải ở tương lai');
+            } else if (expiredDate <= createdDate) {
+                this.setCustomValidity('Ngày hết hạn phải sau ngày tạo');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
     });
 </script>
 

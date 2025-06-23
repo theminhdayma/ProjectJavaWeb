@@ -1,13 +1,15 @@
 package com.data.repository.recruitmentPosition;
 
+import com.data.entity.Candidate;
 import com.data.entity.RecruitmentPosition;
 import com.data.entity.enums.Status;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,7 +22,9 @@ public class RecruitmentPositionRepImp implements RecruitmentPositionRep {
         Session session = null;
         try {
             session = sessionFactory.openSession();
-            String hql = "FROM RecruitmentPosition WHERE description LIKE :keyword";
+            String hql = "SELECT DISTINCT rp FROM RecruitmentPosition rp " +
+                    "LEFT JOIN FETCH rp.technologies " +
+                    "WHERE rp.description LIKE :keyword OR rp.name LIKE :keyword";
             return session.createQuery(hql, RecruitmentPosition.class)
                     .setParameter("keyword", "%" + keyword + "%")
                     .setFirstResult(page * size)
@@ -41,7 +45,12 @@ public class RecruitmentPositionRepImp implements RecruitmentPositionRep {
         Session session = null;
         try {
             session = sessionFactory.openSession();
-            return session.get(RecruitmentPosition.class, id);
+            String hql = "SELECT DISTINCT rp FROM RecruitmentPosition rp " +
+                    "LEFT JOIN FETCH rp.technologies " +
+                    "WHERE rp.id = :id";
+            return session.createQuery(hql, RecruitmentPosition.class)
+                    .setParameter("id", id)
+                    .uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -75,11 +84,16 @@ public class RecruitmentPositionRepImp implements RecruitmentPositionRep {
     }
 
     @Override
-    public long countAll() {
+    public long countAll(String keyword) { // Thêm tham số keyword
         Session session = null;
         try {
             session = sessionFactory.openSession();
-            return (Long) session.createQuery("SELECT COUNT(*) FROM RecruitmentPosition").uniqueResult();
+            String hql = "SELECT COUNT(DISTINCT rp) FROM RecruitmentPosition rp " +
+                    "WHERE (rp.description LIKE :keyword OR rp.name LIKE :keyword) " +
+                    "AND rp.status = 'ACTIVE'";
+            return (Long) session.createQuery(hql)
+                    .setParameter("keyword", "%" + keyword + "%")
+                    .uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -89,6 +103,7 @@ public class RecruitmentPositionRepImp implements RecruitmentPositionRep {
             }
         }
     }
+
 
     @Override
     public boolean update(RecruitmentPosition recruitmentPosition) {
@@ -153,5 +168,122 @@ public class RecruitmentPositionRepImp implements RecruitmentPositionRep {
             }
         }
     }
+
+    @Override
+    public List<RecruitmentPosition> findAllByTechnology(String keyword, Integer technologyId, int page, int size) {
+        Session session = null;
+        List<RecruitmentPosition> recruitmentPositions = new ArrayList<>();
+        try {
+            session = sessionFactory.openSession();
+
+            StringBuilder hql = new StringBuilder("SELECT DISTINCT rp FROM RecruitmentPosition rp " +
+                    "LEFT JOIN FETCH rp.technologies t " +
+                    "WHERE (rp.description LIKE :keyword OR rp.name LIKE :keyword) " +
+                    "AND rp.status = 'ACTIVE'");
+
+            // Thêm điều kiện lọc theo technology nếu có
+            if (technologyId != null) {
+                hql.append(" AND t.id = :technologyId");
+            }
+
+            Query<RecruitmentPosition> query = session.createQuery(hql.toString(), RecruitmentPosition.class);
+            query.setParameter("keyword", "%" + keyword + "%");
+
+            if (technologyId != null) {
+                query.setParameter("technologyId", technologyId);
+            }
+
+            query.setFirstResult(page * size);
+            query.setMaxResults(size);
+
+            recruitmentPositions = query.list();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        return recruitmentPositions;
+    }
+
+    @Override
+    public long countAllByTechnology(String keyword, Integer technologyId) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            StringBuilder hql = new StringBuilder("SELECT COUNT(DISTINCT rp) FROM RecruitmentPosition rp " +
+                    "LEFT JOIN rp.technologies t " +
+                    "WHERE (rp.description LIKE :keyword OR rp.name LIKE :keyword) " +
+                    "AND rp.status = 'ACTIVE'");
+
+            if (technologyId != null) {
+                hql.append(" AND t.id = :technologyId");
+            }
+
+            Query<Long> query = session.createQuery(hql.toString(), Long.class);
+            query.setParameter("keyword", "%" + keyword + "%");
+
+            if (technologyId != null) {
+                query.setParameter("technologyId", technologyId);
+            }
+
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public List<RecruitmentPosition> findRandomPositionsExcluding(int excludeId, int limit) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+
+            // Đếm tổng số positions (trừ position hiện tại)
+            String countHql = "SELECT COUNT(rp) FROM RecruitmentPosition rp " +
+                    "WHERE rp.id != :excludeId AND rp.status = 'ACTIVE'";
+            Query<Long> countQuery = session.createQuery(countHql, Long.class);
+            countQuery.setParameter("excludeId", excludeId);
+            Long totalCount = countQuery.uniqueResult();
+
+            if (totalCount == null || totalCount == 0) {
+                return new ArrayList<>();
+            }
+
+            // Tạo random offset
+            Random random = new Random();
+            int maxOffset = Math.max(0, totalCount.intValue() - limit);
+            int randomOffset = random.nextInt(maxOffset + 1);
+
+            // Lấy random positions
+            String hql = "SELECT DISTINCT rp FROM RecruitmentPosition rp " +
+                    "LEFT JOIN FETCH rp.technologies " +
+                    "WHERE rp.id != :excludeId AND rp.status = 'ACTIVE' " +
+                    "ORDER BY rp.id";
+
+            Query<RecruitmentPosition> query = session.createQuery(hql, RecruitmentPosition.class);
+            query.setParameter("excludeId", excludeId);
+            query.setFirstResult(randomOffset);
+            query.setMaxResults(limit);
+
+            return query.list();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
 
 }

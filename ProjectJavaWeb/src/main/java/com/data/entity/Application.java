@@ -65,4 +65,7 @@ public class Application {
 
     @Column(columnDefinition = "TEXT")
     private String rejectedReason;
+
+    @Column
+    private String interviewLink;
 }

@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity
@@ -54,4 +55,5 @@ public class RecruitmentPosition {
             inverseJoinColumns = @JoinColumn(name = "technologyId")
     )
     private List<Technology> technologies;
+
 }
